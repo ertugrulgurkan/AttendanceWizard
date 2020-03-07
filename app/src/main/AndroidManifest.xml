@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.ertugrul.attendancewithfacerecognition">
+
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
+    <uses-feature android:name="android.hardware.camera" />
+    <uses-feature
+        android:name="android.hardware.camera.autofocus"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.camera.flash"
+        android:required="false" />
+
+    <application
+        android:name=".AttendanceWizard"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme.NoActionBar">
+        <uses-library android:name="org.apache.http.legacy" android:required="false"/>
+        <activity android:name=".SignUp">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.ertugrul.attendancewithfacerecognition.MainActivity" />
+        </activity>
+        <activity android:name=".Menu">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.ertugrul.attendancewithfacerecognition.EditCourses" />
+        </activity>
+        <activity android:name=".TakeAttendance">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.ertugrul.attendancewithfacerecognition.Menu" />
+        </activity>
+        <activity android:name=".EditCourses"></activity>
+        <activity android:name=".AddCourse">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.ertugrul.attendancewithfacerecognition.EditCourses" />
+        </activity>
+        <activity android:name=".EditStudents">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.ertugrul.attendancewithfacerecognition.Menu" />
+        </activity>
+        <activity android:name=".AddStudent">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.ertugrul.attendancewithfacerecognition.EditStudents" />
+        </activity>
+
+        <activity android:name=".SignIn" />
+
+        <activity android:name=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>

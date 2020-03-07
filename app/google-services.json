@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "1038091362979",
+    "firebase_url": "https://attendancewithfacerecognition.firebaseio.com",
+    "project_id": "attendancewithfacerecognition",
+    "storage_bucket": "attendancewithfacerecognition.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1038091362979:android:dc070c9c658746769e5516",
+        "android_client_info": {
+          "package_name": "com.ertugrul.attendancewithfacerecognition"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1038091362979-um1f9pem92qkc6dqbc0dgm8ivuh1rmkl.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ertugrul.attendancewithfacerecognition",
+            "certificate_hash": "f824d172f99b0af2438419ce1fbf39ec11cf8393"
+          }
+        },
+        {
+          "client_id": "1038091362979-trovr9pfsd0hhm4rbmegmorj32md1c7c.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB8Q1STQ4gdjy9wm295M0JnQPHs4x1IYYI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1038091362979-trovr9pfsd0hhm4rbmegmorj32md1c7c.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
