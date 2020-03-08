@@ -113,6 +113,7 @@
 
 
     <string name="already_account"><![CDATA[Already have an account? <b>Sign In!</b>]]></string>
+    <string name="radiobutton">RadioButton</string>
 
 
 </resources>

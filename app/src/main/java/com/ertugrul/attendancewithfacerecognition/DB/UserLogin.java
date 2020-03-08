@@ -3,36 +3,37 @@ package com.ertugrul.attendancewithfacerecognition.DB;
 import java.util.ArrayList;
 import java.util.List;
 
-public class User {
+public class UserLogin implements UserInterface {
+
     private String email;
     private String fullName;
     private List<String> courseIds;
     private String userType;
 
 
-    public User() {
+    public UserLogin() {
     }
 
-    public User(String email, String fullName) {
+    public UserLogin(String email, String fullName) {
         this.email = email;
         this.fullName = fullName;
         this.courseIds = new ArrayList<>();
     }
 
-    public User(String email, String fullName,String userType) {
+    public UserLogin(String email, String fullName, String userType) {
         this.email = email;
         this.fullName = fullName;
         this.courseIds = new ArrayList<>();
         this.userType = userType;
     }
 
-    public User(String email, String fullName, List<String> courseIds) {
+    public UserLogin(String email, String fullName, List<String> courseIds) {
         this.email = email;
         this.fullName = fullName;
         this.courseIds = courseIds;
     }
 
-    public User(String email, String fullName, List<String> courseIds, String userType) {
+    public UserLogin(String email, String fullName, List<String> courseIds, String userType) {
         this.email = email;
         this.fullName = fullName;
         this.courseIds = courseIds;
