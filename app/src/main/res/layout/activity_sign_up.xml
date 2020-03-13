@@ -63,13 +63,22 @@
                 android:textColor="#FFFDFD"
                 android:onClick="onRadioButtonClicked"/>
         </RadioGroup>
-        <!--<Button-->
-            <!--android:layout_marginTop="40dp"-->
-            <!--android:id="@+id/goToApp"-->
-            <!--android:layout_width="200dp"-->
-            <!--android:layout_gravity="center_horizontal"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:text="Go To App" />-->
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/input_layout_school_code"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            >
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/schoolCode"
+                android:hint="School Code"
+                android:singleLine="true"
+                android:inputType="textCapWords"
+                android:textColor="#fff"
+                />
+        </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/input_layout_email"
@@ -132,8 +141,7 @@
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/input_layout_title"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:visibility="gone">
+            android:layout_height="wrap_content">
             <EditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

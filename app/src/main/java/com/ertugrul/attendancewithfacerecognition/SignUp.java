@@ -20,29 +20,39 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import com.ertugrul.attendancewithfacerecognition.DB.School;
 import com.ertugrul.attendancewithfacerecognition.DB.StudentLogin;
 import com.ertugrul.attendancewithfacerecognition.DB.TeacherLogin;
 import com.ertugrul.attendancewithfacerecognition.DB.UserLogin;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.pixplicity.easyprefs.library.Prefs;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class SignUp extends AppCompatActivity {
 
 
     private FirebaseAuth firebaseAuth;
+    private FirebaseFirestore db;
+
     private Button signUp;
-    private EditText email, password1, password2, fullName,studentNo,title;
+    private EditText email, password1, password2, fullName,studentNo,title,schoolCode;
     private TextView alreadyAccount;
     private RadioGroup radioGroup;
     private RadioButton radioButton;
-    private String fullNameText = "", emailText = "", pass1Text ="",pass2Text = "",studentNoText="",titleText="";
+    private String fullNameText = "", emailText = "", pass1Text ="",pass2Text = "",studentNoText="",titleText="",schoolCodeText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,7 +80,7 @@ public class SignUp extends AppCompatActivity {
                 .build();
 
         // Firebase
-
+        schoolCode = findViewById(R.id.schoolCode);
         email = findViewById(R.id.email);
         password1 = findViewById(R.id.password1);
         password2 = findViewById(R.id.password2);
@@ -80,7 +90,6 @@ public class SignUp extends AppCompatActivity {
         signUp = findViewById(R.id.signUp);
         alreadyAccount = findViewById(R.id.alreadyAccount);
         radioGroup = findViewById(R.id.radioGroup);
-
 
         signUp.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -114,6 +123,7 @@ public class SignUp extends AppCompatActivity {
         fullNameText = fullName.getText().toString().trim();
         pass1Text = password1.getText().toString().trim();
         pass2Text = password2.getText().toString().trim();
+        schoolCodeText = schoolCode.getText().toString().trim();
 
         int radioId = radioGroup.getCheckedRadioButtonId();
         radioButton = findViewById(radioId);
@@ -134,7 +144,11 @@ public class SignUp extends AppCompatActivity {
                 return false;
             }
         }
-
+        if(schoolCodeText.isEmpty()){
+            schoolCode.setError("Please enter the school code");
+            schoolCode.requestFocus();
+            return false;
+        }
         if(emailText.isEmpty()){
             email.setError("Please enter an Email Address");
             email.requestFocus();
@@ -196,6 +210,7 @@ public class SignUp extends AppCompatActivity {
     void signUp(){
         if (!fieldsValidation()) return;
 
+        FirebaseApp.initializeApp(this);
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseAuth.createUserWithEmailAndPassword(emailText, pass1Text)
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
@@ -207,38 +222,64 @@ public class SignUp extends AppCompatActivity {
 
                             int radioId = radioGroup.getCheckedRadioButtonId();
                             radioButton = findViewById(radioId);
-                            UserLogin currentUser;
-                            DatabaseReference ref = FirebaseDatabase.getInstance().getReference("users");
-
+                            FirebaseDatabase d = FirebaseDatabase.getInstance();
+                            DatabaseReference mDatabase = d.getReference();
+                            List<String> courseIds = new ArrayList<>();
                             if (radioButton.getText().equals("Teacher")){
-                                currentUser = new TeacherLogin(user.getEmail(),fullNameText, (String) radioButton.getText() ,titleText);
-                                ref.child(user.getUid()).setValue(currentUser);
+                                TeacherLogin teacher = new TeacherLogin(user.getUid(),schoolCodeText,emailText,fullNameText,null, titleText);
+                                UserLogin userLogin = new UserLogin("teacher", user.getUid(),schoolCodeText);
+                                School school = new School(schoolCodeText);
+
+                                String key = mDatabase.child("schools").push().getKey();
+                                Map<String, Object> schoolValues = school.toMap();
+                                Map<String, Object> childUpdate = new HashMap<>();
+                                childUpdate.put("/schools/" + key, schoolValues);
+                                mDatabase.updateChildren(childUpdate);
+
+                                mDatabase.child("teachers").child(user.getUid()).setValue(teacher);
+                                mDatabase.child("users").child(user.getUid()).setValue(userLogin);
+
+                                //ref.child("users").child(userId).child("username").setValue(name);
+                                //ref.child(user.getUid()).setValue(currentUser);
                                 Toast.makeText(SignUp.this, "Teacher was successfully created", Toast.LENGTH_SHORT).show();
                                 Intent i = new Intent(SignUp.this, EditCourses.class);
 
                                 i.setFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
                                 i.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
 
-                                Prefs.putString("UserID", user.getUid());
-                                Prefs.putString("UserEmail", user.getEmail());
-                                Prefs.putString("UserDisplayName", user.getDisplayName());
-                                Prefs.putString("UserCourseIds", "");
-
+                                Prefs.putString("email", emailText);
+                                Prefs.putString("fullName", fullNameText);
+                                Prefs.putString("schoolCode", schoolCodeText);
+                                Prefs.putString("title", titleText);
+                                //Prefs.putString("courseIds", new Gson().toJson(teacher.getCourseIds()));
+                                finish();
                                 startActivity(i);
                             }
                             else{
-                                currentUser = new StudentLogin(user.getEmail(),fullNameText, (String) radioButton.getText() ,studentNoText);
-                                ref.child(user.getUid()).setValue(currentUser);
+                                StudentLogin student = new StudentLogin(user.getUid(),fullNameText,studentNoText,schoolCodeText,emailText,null,null);
+                                UserLogin userLogin = new UserLogin("student", user.getUid(),schoolCodeText);
+
+                                School school = new School(schoolCodeText);
+
+                                String key = mDatabase.child("schools").push().getKey();
+                                Map<String, Object> schoolValues = school.toMap();
+                                Map<String, Object> childUpdate = new HashMap<>();
+                                childUpdate.put("/schools/" + key, schoolValues);
+                                mDatabase.updateChildren(childUpdate);
+
+                                mDatabase.child("students").child(user.getUid()).setValue(student);
+                                mDatabase.child("users").child(user.getUid()).setValue(userLogin);
                                 Toast.makeText(SignUp.this, "Student was successfully created", Toast.LENGTH_SHORT).show();
-                                Intent i = new Intent(SignUp.this, AddStudent.class);
+                                Intent i = new Intent(SignUp.this, UploadPhoto.class);
 
                                 i.setFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
                                 i.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
-
-                                Prefs.putString("UserID", user.getUid());
-                                Prefs.putString("UserEmail", user.getEmail());
-                                Prefs.putString("UserDisplayName", user.getDisplayName());
-                                Prefs.putString("UserCourseIds", "");
+                                System.out.println("SignUp " + student.toString());
+                                Prefs.putString("email", emailText);
+                                Prefs.putString("fullName", fullNameText);
+                                Prefs.putString("schoolCode", schoolCodeText);
+                                Prefs.putString("schoolId", studentNoText);
+                                //Prefs.putString("courseIds", new Gson().toJson(student.getCourseIds()));
 
                                 startActivity(i);
 

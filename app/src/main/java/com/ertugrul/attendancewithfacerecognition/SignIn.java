@@ -12,7 +12,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import com.ertugrul.attendancewithfacerecognition.DB.User;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -23,11 +22,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.gson.Gson;
 import com.pixplicity.easyprefs.library.Prefs;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class SignIn extends AppCompatActivity {
 
@@ -66,7 +61,6 @@ public class SignIn extends AppCompatActivity {
         });
 
 
-
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
@@ -90,17 +84,17 @@ public class SignIn extends AppCompatActivity {
 
     }
 
-    public void signIn(){
+    public void signIn() {
         String emailText = email.getText().toString().trim();
         String passText = password.getText().toString().trim();
 
-        if(emailText.isEmpty()){
+        if (emailText.isEmpty()) {
             email.setError("Please enter an Email Address");
             email.requestFocus();
             return;
         }
 
-        if(passText.isEmpty()){
+        if (passText.isEmpty()) {
             password.setError("Please enter a Password");
             password.requestFocus();
             return;
@@ -110,8 +104,8 @@ public class SignIn extends AppCompatActivity {
                 addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()){
-
+                        if (task.isSuccessful()) {
+                            Log.d(SignIn.class.getName(), "signInWithEmail:success");
                             FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
                             FirebaseDatabase d = FirebaseDatabase.getInstance();
                             DatabaseReference databaseReference = d.getReference().child("users").child(user.getUid());
@@ -119,50 +113,40 @@ public class SignIn extends AppCompatActivity {
                             databaseReference.addValueEventListener(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(DataSnapshot dataSnapshot) {
-                                    User currentUser = new User();
-                                    for (DataSnapshot ds: dataSnapshot.getChildren()){
-                                        switch(ds.getKey()){
-                                            case "email":
-                                                currentUser.setEmail((String)ds.getValue());
-                                                break;
-                                            case "fullName":
-                                                currentUser.setFullName((String)ds.getValue());
-                                                break;
-                                            case "courseIds":
 
-                                                List<String> courseIds = new ArrayList<>();
-                                                for (DataSnapshot courseData: ds.getChildren()){
-                                                    courseIds.add((String)courseData.getValue());
-                                                }
-                                                currentUser.setCourseIds(courseIds);
-                                                break;
-                                        }
+                                    boolean isStudent = false;
+                                    String schoolCode="";
+                                    for (DataSnapshot ds : dataSnapshot.getChildren()) {
+                                        if (ds.getValue().equals("student"))
+                                            isStudent = true;
+                                        if (ds.getKey().equals("schoolCode"))
+                                            schoolCode = ds.getValue(String.class);
                                     }
+                                    Prefs.putString("schoolCode", schoolCode);
+                                    if (isStudent) {
+                                        Intent i = new Intent(SignIn.this, UploadPhoto.class);
+                                        i.setFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
+                                        i.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                                        finish();
+                                        startActivity(i);
+                                    }
+                                    else{
+                                        Intent i = new Intent(SignIn.this, EditCourses.class);
+                                        i.setFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
+                                        i.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                                        finish();
+                                        startActivity(i);
 
-                                    if (currentUser.getCourseIds()==null) currentUser.setCourseIds(new ArrayList<String>());
-                                    System.out.println("SignIn "+currentUser.toString());
-                                    Prefs.putString("UserID", new Gson().toJson(currentUser.getCourseIds()));
-                                    Prefs.putString("UserEmail", currentUser.getEmail());
-                                    Prefs.putString("UserDisplayName", currentUser.getFullName());
-                                    Prefs.putString("UserCourseIds", new Gson().toJson(currentUser.getCourseIds()));
-
-                                    //Log.v("Retrieved CourseIds", new Gson().toJson(currentUser.getCourseIds()));
-
-                                    Intent i = new Intent(SignIn.this, EditCourses.class);
-                                    i.setFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
-                                    i.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
-                                    startActivity(i);
+                                    }
                                 }
-
                                 @Override
                                 public void onCancelled(DatabaseError databaseError) {
-
                                 }
                             });
 
 
                         }
-                        else{
+                        else {
                             Toast.makeText(SignIn.this, task.getException().getMessage().toString(), Toast.LENGTH_LONG).show();
                             Log.i("fail user creation", task.getException().getLocalizedMessage().toString());
                         }

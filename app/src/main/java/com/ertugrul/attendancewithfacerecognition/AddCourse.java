@@ -11,21 +11,18 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import com.ertugrul.attendancewithfacerecognition.DB.User;
+import com.ertugrul.attendancewithfacerecognition.DB.Course;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.google.gson.Gson;
 import com.microsoft.projectoxford.face.FaceServiceClient;
 import com.microsoft.projectoxford.face.FaceServiceRestClient;
 import com.pixplicity.easyprefs.library.Prefs;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 public class AddCourse extends AppCompatActivity {
 
@@ -33,6 +30,8 @@ public class AddCourse extends AppCompatActivity {
     String year;
     String numberOfClassesInCourses;
     String courseCode;
+    DatabaseReference mDatabase;
+    String schoolCode;
 
     String newCourseId;
 
@@ -40,11 +39,11 @@ public class AddCourse extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_course);
-
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+        schoolCode = Prefs.getString("schoolCode", "");
         setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         getSupportActionBar().setElevation(100);
-
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
         (findViewById(R.id.addCourse)).setOnClickListener(new View.OnClickListener() {
@@ -77,9 +76,9 @@ public class AddCourse extends AppCompatActivity {
                     return;
                 }
 
-                CourseData newCourseData = new CourseData(courseName, year, numberOfClassesInCourses, courseCode);
-                newCourseId = courseCode.replace(' ', '-').toLowerCase() + System.nanoTime();
-                new AddPersonGroupTask().execute(newCourseId, courseName, (new Gson()).toJson(newCourseData)); //largeGroupId, name, userInfo
+                Course course = new Course(mDatabase.child("courses").push().getKey(),courseName, year, numberOfClassesInCourses, courseCode,schoolCode);
+                newCourseId = courseCode.replace(' ', '-').toLowerCase();
+                new AddPersonGroupTask().execute(newCourseId, courseName, (new Gson()).toJson(course)); //largeGroupId, name, userInfo
 
                 findViewById(R.id.addCourseProgress).setVisibility(View.VISIBLE);
             }
@@ -91,7 +90,7 @@ public class AddCourse extends AppCompatActivity {
         startActivity(new Intent(AddCourse.this, EditCourses.class));
     }
 
-    private class CourseData{
+    /*private class CourseData{
         String courseName;
         String year;
         String numberOfClasses;
@@ -103,7 +102,7 @@ public class AddCourse extends AppCompatActivity {
             this.numberOfClasses = numberOfClasses;
             this.courseCode = courseCode;
         }
-    }
+    }*/
 
     class AddPersonGroupTask extends AsyncTask<String, Void, String> {
 
@@ -117,10 +116,10 @@ public class AddCourse extends AppCompatActivity {
                 Log.v("",("Syncing with server to add person group..."));
 
                 // Start creating person group in server.
-                faceServiceClient.createLargePersonGroup(
+                /*faceServiceClient.createLargePersonGroup(   burası çalışıyor ama şimdilik eklemek istemediğim için kapatıyorum
                         params[0],
                         params[1],
-                        params[2]);
+                        params[2]);*/
 
                 return params[0];
             } catch (Exception e) {
@@ -149,8 +148,15 @@ public class AddCourse extends AppCompatActivity {
 
                 FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
                 FirebaseDatabase d = FirebaseDatabase.getInstance();
-                final DatabaseReference databaseReference = d.getReference().child("users").child(user.getUid());
-                databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                String key = mDatabase.child("courses").push().getKey();
+                Course course = new Course(key,courseName,year,numberOfClassesInCourses,courseCode,schoolCode);
+                Map<String, Object> courseValues = course.toMap();
+                Map<String, Object> childUpdates = new HashMap<>();
+                childUpdates.put("/courses/" + key, courseValues);
+                childUpdates.put("/teachers/" + user.getUid() + "/courseIds", key);
+
+                mDatabase.updateChildren(childUpdates);
+                /*mDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         User currentUser = new User();
@@ -185,9 +191,10 @@ public class AddCourse extends AppCompatActivity {
                     public void onCancelled(DatabaseError databaseError) {
 
                     }
-                });
+                });*/
 
                 startActivity(new Intent(AddCourse.this, EditCourses.class));
+                finish();
             }
             else{
                 Toast.makeText(getApplicationContext(), "The course could not be created at this time", Toast.LENGTH_LONG).show();

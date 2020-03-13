@@ -2,32 +2,65 @@ package com.ertugrul.attendancewithfacerecognition.DB;
 
 import java.util.List;
 
-public class TeacherLogin extends UserLogin implements UserInterface{
+public class TeacherLogin{
 
+    private String userId;
+    private String schoolCode;
+    private String email;
+    private String fullName;
+    private List<String> courseIds;
     private String title;
 
-    public TeacherLogin(String title) {
+    public TeacherLogin() {
+    }
+
+    public TeacherLogin(String userId, String schoolCode, String email, String fullName, List<String> courseIds, String title) {
+        this.userId = userId;
+        this.schoolCode = schoolCode;
+        this.email = email;
+        this.fullName = fullName;
+        this.courseIds = courseIds;
         this.title = title;
     }
 
-    public TeacherLogin(String email, String fullName, String title) {
-        super(email, fullName);
-        this.title = title;
+    public String getUserId() {
+        return userId;
     }
 
-    public TeacherLogin(String email, String fullName, String userType, String title) {
-        super(email, fullName, userType);
-        this.title = title;
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
-    public TeacherLogin(String email, String fullName, List<String> courseIds, String title) {
-        super(email, fullName, courseIds);
-        this.title = title;
+    public String getSchoolCode() {
+        return schoolCode;
     }
 
-    public TeacherLogin(String email, String fullName, List<String> courseIds, String userType, String title) {
-        super(email, fullName, courseIds, userType);
-        this.title = title;
+    public void setSchoolCode(String schoolCode) {
+        this.schoolCode = schoolCode;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
+
+    public List<String> getCourseIds() {
+        return courseIds;
+    }
+
+    public void setCourseIds(List<String> courseIds) {
+        this.courseIds = courseIds;
     }
 
 
@@ -38,6 +71,4 @@ public class TeacherLogin extends UserLogin implements UserInterface{
     public void setTitle(String title) {
         this.title = title;
     }
-
-
 }

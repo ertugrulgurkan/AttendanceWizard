@@ -45,6 +45,8 @@ public class EditCourses extends AppCompatActivity {
 
     ListView courseListView;
     CoursesListAdapter coursesListAdapter;
+    DatabaseReference mDatabase;
+    String schoolCode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,20 +57,21 @@ public class EditCourses extends AppCompatActivity {
 
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         getSupportActionBar().setElevation(100);
-
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+        schoolCode = Prefs.getString("schoolCode", "");
         courseListView = findViewById(R.id.courseList);
 
         (findViewById(R.id.addCourseFab)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 startActivity(new Intent(EditCourses.this, AddCourse.class));
             }
         });
-
-        Log.v("EditCourses", Prefs.getString("UserID", "A"));
-        Log.v("EditCourses", Prefs.getString("UserEmail", "A"));
-        Log.v("EditCourses", Prefs.getString("UserDisplayName", "A"));
-        Log.v("EditCourses", Prefs.getString("UserCourseIds", "A"));
+        //Log.v("EditCourses", Prefs.getString("UserID", "A"));
+        //Log.v("EditCourses", Prefs.getString("UserEmail", "A"));
+        //Log.v("EditCourses", Prefs.getString("UserDisplayName", "A"));
+        //Log.v("EditCourses", Prefs.getString("UserCourseIds", "A"));
     }
 
     @Override
@@ -81,7 +84,6 @@ public class EditCourses extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_logout:
-
                 DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -155,7 +157,7 @@ public class EditCourses extends AppCompatActivity {
             courseNameAndYear.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Prefs.putString("courseId", course.courseId);
+                    //Prefs.putString("courseId", course.courseId);
 
                     Intent intent = new Intent(EditCourses.this, Menu.class);
                     startActivity(intent);
@@ -172,7 +174,7 @@ public class EditCourses extends AppCompatActivity {
                         public void onClick(DialogInterface dialog, int which) {
                             switch (which){
                                 case DialogInterface.BUTTON_POSITIVE:
-                                    new DeletePersonGroupTask().execute(course.courseId);
+                                    //new DeletePersonGroupTask().execute(course.courseId);
                                     break;
 
                                 case DialogInterface.BUTTON_NEGATIVE:
@@ -190,8 +192,8 @@ public class EditCourses extends AppCompatActivity {
             });
 
             assert course != null;
-            courseNameAndYear.setText(course.courseName+" - Year "+course.year);
-            courseCode.setText(course.courseCode);
+            courseNameAndYear.setText(course.getCourseName()+" - Year "+course.getYear());
+            courseCode.setText(course.getCourseCode());
 
             return convertView;
 
@@ -268,9 +270,9 @@ public class EditCourses extends AppCompatActivity {
 
                 CourseData courseData = (new Gson()).fromJson(lpg.userData, CourseData.class);
 
-                Course newCourse = new Course(lpg.largePersonGroupId, lpg.name, courseData.year, Integer.parseInt(courseData.numberOfClasses), courseData.courseCode);
-                db.courseDao().insertAll(newCourse);
-                courseList.add(newCourse);
+                Course newCourse = new Course(mDatabase.child("courses").push().getKey(),lpg.name, courseData.year, courseData.numberOfClasses, courseData.courseCode, schoolCode);
+                //db.courseDao().insertAll(newCourse);
+                //courseList.add(newCourse);
             }
 
             (findViewById(R.id.classListProgress)).setVisibility(View.GONE);
