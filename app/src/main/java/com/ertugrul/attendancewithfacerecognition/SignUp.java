@@ -1,6 +1,5 @@
 package com.ertugrul.attendancewithfacerecognition;
 
-import android.app.AlertDialog;
 import android.content.ContextWrapper;
 import android.content.Intent;
 import android.os.Build;
@@ -33,7 +32,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.pixplicity.easyprefs.library.Prefs;
 
 import java.util.ArrayList;
@@ -45,7 +43,6 @@ public class SignUp extends AppCompatActivity {
 
 
     private FirebaseAuth firebaseAuth;
-    private FirebaseFirestore db;
 
     private Button signUp;
     private EditText email, password1, password2, fullName,studentNo,title,schoolCode;
@@ -64,13 +61,6 @@ public class SignUp extends AppCompatActivity {
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         getSupportActionBar().setElevation(100);
 
-        if (getString(R.string.subscription_key).startsWith("Please")) {
-            new AlertDialog.Builder(this)
-                    .setTitle(getString(R.string.add_subscription_key_tip_title))
-                    .setMessage(getString(R.string.add_subscription_key_tip))
-                    .setCancelable(false)
-                    .show();
-        }
 
         new Prefs.Builder()
                 .setContext(this)
@@ -94,9 +84,7 @@ public class SignUp extends AppCompatActivity {
         signUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 signUp();
-
             }
         });
 
@@ -217,7 +205,6 @@ public class SignUp extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-
                             FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
                             int radioId = radioGroup.getCheckedRadioButtonId();
@@ -238,9 +225,6 @@ public class SignUp extends AppCompatActivity {
 
                                 mDatabase.child("teachers").child(user.getUid()).setValue(teacher);
                                 mDatabase.child("users").child(user.getUid()).setValue(userLogin);
-
-                                //ref.child("users").child(userId).child("username").setValue(name);
-                                //ref.child(user.getUid()).setValue(currentUser);
                                 Toast.makeText(SignUp.this, "Teacher was successfully created", Toast.LENGTH_SHORT).show();
                                 Intent i = new Intent(SignUp.this, EditCourses.class);
 
@@ -279,18 +263,10 @@ public class SignUp extends AppCompatActivity {
                                 Prefs.putString("fullName", fullNameText);
                                 Prefs.putString("schoolCode", schoolCodeText);
                                 Prefs.putString("schoolId", studentNoText);
-                                //Prefs.putString("courseIds", new Gson().toJson(student.getCourseIds()));
 
                                 startActivity(i);
 
                             }
-
-                            //User currentUser = new User(user.getEmail(), fullNameText, (String) radioButton.getText());
-
-
-
-
-
 
                         }
                         else{
