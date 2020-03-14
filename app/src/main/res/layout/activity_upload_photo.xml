@@ -1,43 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    tools:context="com.ertugrul.attendancewithfacerecognition.UploadPhoto">
     <androidx.appcompat.widget.Toolbar
         style="@style/ToolBarStyle.Event"
-        xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?attr/colorPrimary"
         android:minHeight="@dimen/abc_action_bar_default_height_material" >
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:orientation="vertical">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Upload Your Photo"
-                android:layout_gravity="center"
-                android:id="@+id/toolbar_title"
-                android:textColor="#fff"
-                android:textSize="26sp"
-                android:fontFamily="sans-serif-condensed"/>
-
-        </LinearLayout>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Upload Your Photo"
+            android:layout_gravity="center"
+            android:id="@+id/toolbar_title"
+            android:textColor="#fff"
+            android:textSize="25sp"
+            android:fontFamily="sans-serif-condensed"/>
     </androidx.appcompat.widget.Toolbar>
 
     <LinearLayout
         android:orientation="vertical"
-        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:paddingLeft="20dp"
         android:paddingRight="20dp"
-        tools:context="com.ertugrul.attendancewithfacerecognition.AddStudent"
         android:layout_marginTop="65dp">
-
         <ImageView
             android:layout_width="120dp"
             android:layout_height="120dp"

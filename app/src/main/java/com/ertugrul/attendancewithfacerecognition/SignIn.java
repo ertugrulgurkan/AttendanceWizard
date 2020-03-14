@@ -22,7 +22,12 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.gson.Gson;
 import com.pixplicity.easyprefs.library.Prefs;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 public class SignIn extends AppCompatActivity {
 
@@ -76,9 +81,13 @@ public class SignIn extends AppCompatActivity {
         };
 
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        String userType = Prefs.getString("userType","");
         if (user != null) {
             // User is signed in
-            startActivity(new Intent(SignIn.this, EditCourses.class));
+            if (userType.equals("student"))
+                startActivity(new Intent(SignIn.this, UploadPhoto.class));
+            else if (userType.equals("teacher"))
+                startActivity(new Intent(SignIn.this, EditCourses.class));
         }
 
 
@@ -116,25 +125,33 @@ public class SignIn extends AppCompatActivity {
 
                                     boolean isStudent = false;
                                     String schoolCode="";
+                                    List<String> courseIds = new ArrayList<>();
                                     for (DataSnapshot ds : dataSnapshot.getChildren()) {
                                         if (ds.getValue().equals("student"))
                                             isStudent = true;
                                         if (ds.getKey().equals("schoolCode"))
                                             schoolCode = ds.getValue(String.class);
+                                        if (ds.getKey().equals("courseIds")){
+                                            HashMap<String,String> hashMap = (HashMap<String, String>) ds.getValue();
+                                            courseIds = new ArrayList<>(hashMap.values());
+                                        }
                                     }
                                     Prefs.putString("schoolCode", schoolCode);
+                                    Prefs.putString("UserCourseIds", new Gson().toJson(courseIds));
                                     if (isStudent) {
+                                        Prefs.putString("userType","student");
                                         Intent i = new Intent(SignIn.this, UploadPhoto.class);
                                         i.setFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
                                         i.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
-                                        finish();
+                                        //finish();
                                         startActivity(i);
                                     }
                                     else{
+                                        Prefs.putString("userType","teacher");
                                         Intent i = new Intent(SignIn.this, EditCourses.class);
                                         i.setFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
                                         i.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
-                                        finish();
+                                        //finish();
                                         startActivity(i);
 
                                     }

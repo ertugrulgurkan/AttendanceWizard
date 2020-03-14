@@ -45,7 +45,7 @@
         android:gravity="center"
         android:layout_marginTop="40dp"
         android:padding="10dp"
-        android:text="No Students Found.\n\nClick on the menu icon to the top right and click Edit Students to refresh this list."
+        android:text="No Students Found.\n\nClick on the mainMenu icon to the top right and click Edit Students to refresh this list."
         android:visibility="gone"/>
 
     <FrameLayout

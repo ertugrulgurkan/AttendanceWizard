@@ -21,7 +21,10 @@ import com.microsoft.projectoxford.face.FaceServiceClient;
 import com.microsoft.projectoxford.face.FaceServiceRestClient;
 import com.pixplicity.easyprefs.library.Prefs;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class AddCourse extends AppCompatActivity {
@@ -32,8 +35,9 @@ public class AddCourse extends AppCompatActivity {
     String courseCode;
     DatabaseReference mDatabase;
     String schoolCode;
-
+    List<String> courseIds;
     String newCourseId;
+    String courseIdFromDB;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +45,7 @@ public class AddCourse extends AppCompatActivity {
         setContentView(R.layout.activity_add_course);
         mDatabase = FirebaseDatabase.getInstance().getReference();
         schoolCode = Prefs.getString("schoolCode", "");
+        courseIds = Arrays.asList(((new Gson()).fromJson(Prefs.getString("UserCourseIds",""), String[].class)));
         setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         getSupportActionBar().setElevation(100);
@@ -54,6 +59,7 @@ public class AddCourse extends AppCompatActivity {
                 year = ((EditText)findViewById(R.id.year)).getText().toString();
                 numberOfClassesInCourses = ((EditText)findViewById(R.id.numberOfClasses)).getText().toString();
                 courseCode = ((EditText)findViewById(R.id.courseCode)).getText().toString();
+                courseIdFromDB = mDatabase.child("courses").push().getKey().toLowerCase();
 
                 if (courseName.equals("")){
                     ((EditText)findViewById(R.id.courseName)).setError("Please enter a Course Name");
@@ -75,10 +81,8 @@ public class AddCourse extends AppCompatActivity {
                     (findViewById(R.id.courseCode)).requestFocus();
                     return;
                 }
-
-                Course course = new Course(mDatabase.child("courses").push().getKey(),courseName, year, numberOfClassesInCourses, courseCode,schoolCode);
-                newCourseId = courseCode.replace(' ', '-').toLowerCase();
-                new AddPersonGroupTask().execute(newCourseId, courseName, (new Gson()).toJson(course)); //largeGroupId, name, userInfo
+                Course course = new Course(courseIdFromDB,courseName, year, numberOfClassesInCourses, courseCode ,schoolCode);
+                new AddPersonGroupTask().execute(courseIdFromDB, courseName, (new Gson()).toJson(course)); //largeGroupId, name, userInfo
 
                 findViewById(R.id.addCourseProgress).setVisibility(View.VISIBLE);
             }
@@ -116,10 +120,10 @@ public class AddCourse extends AppCompatActivity {
                 Log.v("",("Syncing with server to add person group..."));
 
                 // Start creating person group in server.
-                /*faceServiceClient.createLargePersonGroup(   burası çalışıyor ama şimdilik eklemek istemediğim için kapatıyorum
+                faceServiceClient.createLargePersonGroup(  // burası çalışıyor ama şimdilik eklemek istemediğim için kapatıyorum
                         params[0],
                         params[1],
-                        params[2]);*/
+                        params[2]);
 
                 return params[0];
             } catch (Exception e) {
@@ -147,15 +151,16 @@ public class AddCourse extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), "Course successfully created", Toast.LENGTH_LONG).show();
 
                 FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                FirebaseDatabase d = FirebaseDatabase.getInstance();
-                String key = mDatabase.child("courses").push().getKey();
-                Course course = new Course(key,courseName,year,numberOfClassesInCourses,courseCode,schoolCode);
+                Course course = new Course(courseIdFromDB,courseName,year,numberOfClassesInCourses,courseCode,schoolCode);
                 Map<String, Object> courseValues = course.toMap();
                 Map<String, Object> childUpdates = new HashMap<>();
-                childUpdates.put("/courses/" + key, courseValues);
-                childUpdates.put("/teachers/" + user.getUid() + "/courseIds", key);
-
+                childUpdates.put("/courses/" + courseIdFromDB, courseValues);
+                childUpdates.put("/users/" + user.getUid() + "/courseIds/"+ courseIdFromDB, courseIdFromDB);
+                childUpdates.put("/teachers/" + user.getUid() + "/courseIds/"+ courseIdFromDB, courseIdFromDB);
                 mDatabase.updateChildren(childUpdates);
+                List<String> userCourseIds = new ArrayList<>(Arrays.asList(((new Gson()).fromJson(Prefs.getString("UserCourseIds", ""), String[].class))));
+                userCourseIds.add(courseIdFromDB);
+                Prefs.putString("UserCourseIds", new Gson().toJson(userCourseIds));
                 /*mDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {

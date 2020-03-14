@@ -1,19 +1,21 @@
 package com.ertugrul.attendancewithfacerecognition.DB;
 
+import java.util.List;
+
 public class UserLogin {
     private String userType;
     private String userId;
     private String schoolCode;
-
-
+    private List<String> courseIds;
 
     public UserLogin() {
     }
 
-    public UserLogin(String userType, String userId,String schoolCode) {
+    public UserLogin(String userType, String userId,String schoolCode,List<String> courseIds) {
         this.userType = userType;
         this.userId = userId;
         this.schoolCode = schoolCode;
+        this.courseIds = courseIds;
     }
 
     public String getUserType() {
@@ -24,12 +26,12 @@ public class UserLogin {
         this.userType = userType;
     }
 
-    public String getUser() {
-        return userId;
+    public String getSchoolCode() {
+        return schoolCode;
     }
 
-    public void setUser(String user) {
-        this.userId = user;
+    public void setSchoolCode(String schoolCode) {
+        this.schoolCode = schoolCode;
     }
 
     public String getUserId() {
@@ -40,11 +42,11 @@ public class UserLogin {
         this.userId = userId;
     }
 
-    public String getSchoolCode() {
-        return schoolCode;
+    public List<String> getCourseIds() {
+        return courseIds;
     }
 
-    public void setSchoolCode(String schoolCode) {
-        this.schoolCode = schoolCode;
+    public void setCourseIds(List<String> courseIds) {
+        this.courseIds = courseIds;
     }
 }

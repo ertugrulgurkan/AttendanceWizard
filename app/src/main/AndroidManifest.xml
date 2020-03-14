@@ -2,7 +2,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.ertugrul.attendancewithfacerecognition">
 
-
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -23,7 +22,12 @@
         android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
         android:theme="@style/AppTheme.NoActionBar">
-        <uses-library android:name="org.apache.http.legacy" android:required="false"/>
+        <activity android:name=".StudentExample"></activity>
+
+        <uses-library
+            android:name="org.apache.http.legacy"
+            android:required="false" />
+
         <activity android:name=".SignUp">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -39,7 +43,7 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.ertugrul.attendancewithfacerecognition.Menu" />
         </activity>
-        <activity android:name=".EditCourses"></activity>
+        <activity android:name=".EditCourses" />
         <activity android:name=".AddCourse">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -56,12 +60,8 @@
                 android:value="com.ertugrul.attendancewithfacerecognition.EditStudents" />
         </activity>
         <activity android:name=".UploadPhoto">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.ertugrul.attendancewithfacerecognition.UploadPhoto" />
         </activity>
         <activity android:name=".SignIn" />
-
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

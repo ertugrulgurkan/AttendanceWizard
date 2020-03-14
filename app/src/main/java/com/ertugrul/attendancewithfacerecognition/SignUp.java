@@ -14,7 +14,6 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -32,6 +31,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.gson.Gson;
 import com.pixplicity.easyprefs.library.Prefs;
 
 import java.util.ArrayList;
@@ -98,9 +98,13 @@ public class SignUp extends AppCompatActivity {
         });
 
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        String userType = Prefs.getString("userType","");
         if (user != null) {
             // User is signed in
-            startActivity(new Intent(SignUp.this, EditCourses.class));
+            if (userType.equals("student"))
+                startActivity(new Intent(SignUp.this, UploadPhoto.class));
+            else if (userType.equals("teacher"))
+                startActivity(new Intent(SignUp.this, EditCourses.class));
         }
 
     }
@@ -214,7 +218,7 @@ public class SignUp extends AppCompatActivity {
                             List<String> courseIds = new ArrayList<>();
                             if (radioButton.getText().equals("Teacher")){
                                 TeacherLogin teacher = new TeacherLogin(user.getUid(),schoolCodeText,emailText,fullNameText,null, titleText);
-                                UserLogin userLogin = new UserLogin("teacher", user.getUid(),schoolCodeText);
+                                UserLogin userLogin = new UserLogin("teacher", user.getUid(),schoolCodeText,courseIds);
                                 School school = new School(schoolCodeText);
 
                                 String key = mDatabase.child("schools").push().getKey();
@@ -230,18 +234,18 @@ public class SignUp extends AppCompatActivity {
 
                                 i.setFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
                                 i.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
-
+                                Prefs.putString("userType","teacher");
                                 Prefs.putString("email", emailText);
                                 Prefs.putString("fullName", fullNameText);
                                 Prefs.putString("schoolCode", schoolCodeText);
                                 Prefs.putString("title", titleText);
-                                //Prefs.putString("courseIds", new Gson().toJson(teacher.getCourseIds()));
+                                Prefs.putString("courseIds", new Gson().toJson(courseIds));
                                 finish();
                                 startActivity(i);
                             }
                             else{
                                 StudentLogin student = new StudentLogin(user.getUid(),fullNameText,studentNoText,schoolCodeText,emailText,null,null);
-                                UserLogin userLogin = new UserLogin("student", user.getUid(),schoolCodeText);
+                                UserLogin userLogin = new UserLogin("student", user.getUid(),schoolCodeText,courseIds);
 
                                 School school = new School(schoolCodeText);
 
@@ -250,7 +254,7 @@ public class SignUp extends AppCompatActivity {
                                 Map<String, Object> childUpdate = new HashMap<>();
                                 childUpdate.put("/schools/" + key, schoolValues);
                                 mDatabase.updateChildren(childUpdate);
-
+                                Prefs.putString("UserCourseIds", new Gson().toJson(courseIds));
                                 mDatabase.child("students").child(user.getUid()).setValue(student);
                                 mDatabase.child("users").child(user.getUid()).setValue(userLogin);
                                 Toast.makeText(SignUp.this, "Student was successfully created", Toast.LENGTH_SHORT).show();
@@ -259,10 +263,12 @@ public class SignUp extends AppCompatActivity {
                                 i.setFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
                                 i.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
                                 System.out.println("SignUp " + student.toString());
+                                Prefs.putString("userType","student");
                                 Prefs.putString("email", emailText);
                                 Prefs.putString("fullName", fullNameText);
                                 Prefs.putString("schoolCode", schoolCodeText);
                                 Prefs.putString("schoolId", studentNoText);
+                                Prefs.putString("courseIds", new Gson().toJson(courseIds));
 
                                 startActivity(i);
 

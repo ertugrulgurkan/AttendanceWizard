@@ -9,6 +9,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -47,6 +48,8 @@ public class EditCourses extends AppCompatActivity {
     CoursesListAdapter coursesListAdapter;
     DatabaseReference mDatabase;
     String schoolCode;
+    List<String> courseIds;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +62,7 @@ public class EditCourses extends AppCompatActivity {
         getSupportActionBar().setElevation(100);
         mDatabase = FirebaseDatabase.getInstance().getReference();
         schoolCode = Prefs.getString("schoolCode", "");
+        courseIds = new ArrayList<>(Arrays.asList(((new Gson()).fromJson(Prefs.getString("UserCourseIds",""), String[].class))));
         courseListView = findViewById(R.id.courseList);
 
         (findViewById(R.id.addCourseFab)).setOnClickListener(new View.OnClickListener() {
@@ -74,9 +78,11 @@ public class EditCourses extends AppCompatActivity {
         //Log.v("EditCourses", Prefs.getString("UserCourseIds", "A"));
     }
 
+
     @Override
     public boolean onCreateOptionsMenu(android.view.Menu menu) {
-        getMenuInflater().inflate(R.menu.main_menu, menu);
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main_menu, menu);
         return true;
     }
 
@@ -105,10 +111,7 @@ public class EditCourses extends AppCompatActivity {
                         .setNegativeButton("No", dialogClickListener).show();
                 return true;
             default:
-                // If we got here, the user's action was not recognized.
-                // Invoke the superclass to handle it.
                 return super.onOptionsItemSelected(item);
-
         }
     }
 
@@ -235,27 +238,24 @@ public class EditCourses extends AppCompatActivity {
         protected void onPostExecute(LargePersonGroup[] allLpgs) {
 
             //if lpg course of not user remove
-
             if (allLpgs.length==0){
                 Toast.makeText(EditCourses.this, "No Courses Created Yet", Toast.LENGTH_LONG).show();
                 (findViewById(R.id.classListProgress)).setVisibility(View.GONE);
                 return;
             }
 
-            if (Prefs.getString("UserCourseIds","").equals("")){
+            if (courseIds.equals("")){
                 Toast.makeText(EditCourses.this, "No Courses Created Yet", Toast.LENGTH_LONG).show();
                 (findViewById(R.id.classListProgress)).setVisibility(View.GONE);
                 return;
             }
 
-            List<String> courseIdsForUser = Arrays.asList(((new Gson()).fromJson(Prefs.getString("UserCourseIds",""), String[].class)));
-
             List<LargePersonGroup> courseLpgs = new ArrayList<>();
 
             for (LargePersonGroup lpg: allLpgs){
-                if (courseIdsForUser.contains(lpg.largePersonGroupId)) courseLpgs.add(lpg);
+                if (courseIds.contains(lpg.largePersonGroupId))
+                    courseLpgs.add(lpg);
             }
-
 
             if (courseLpgs.size() == 0){
                 Toast.makeText(EditCourses.this, "No Courses Created Yet", Toast.LENGTH_LONG).show();
@@ -265,14 +265,8 @@ public class EditCourses extends AppCompatActivity {
 
             List<Course> courseList = new ArrayList<>();
             for (LargePersonGroup lpg: courseLpgs){
-
-                AppDatabase db = AppDatabase.getAppDatabase(getApplicationContext());
-
-                CourseData courseData = (new Gson()).fromJson(lpg.userData, CourseData.class);
-
-                Course newCourse = new Course(mDatabase.child("courses").push().getKey(),lpg.name, courseData.year, courseData.numberOfClasses, courseData.courseCode, schoolCode);
-                //db.courseDao().insertAll(newCourse);
-                //courseList.add(newCourse);
+                Course course = (new Gson()).fromJson(lpg.userData, Course.class);
+                courseList.add(course);
             }
 
             (findViewById(R.id.classListProgress)).setVisibility(View.GONE);
