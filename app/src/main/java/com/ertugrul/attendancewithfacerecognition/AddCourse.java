@@ -36,7 +36,7 @@ public class AddCourse extends AppCompatActivity {
     DatabaseReference mDatabase;
     String schoolCode;
     List<String> courseIds;
-    String newCourseId;
+    List<String> studentIds;
     String courseIdFromDB;
 
     @Override
@@ -81,7 +81,7 @@ public class AddCourse extends AppCompatActivity {
                     (findViewById(R.id.courseCode)).requestFocus();
                     return;
                 }
-                Course course = new Course(courseIdFromDB,courseName, year, numberOfClassesInCourses, courseCode ,schoolCode);
+                Course course = new Course(courseIdFromDB,courseName, year, numberOfClassesInCourses, courseCode ,schoolCode,studentIds);
                 new AddPersonGroupTask().execute(courseIdFromDB, courseName, (new Gson()).toJson(course)); //largeGroupId, name, userInfo
 
                 findViewById(R.id.addCourseProgress).setVisibility(View.VISIBLE);
@@ -151,7 +151,7 @@ public class AddCourse extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), "Course successfully created", Toast.LENGTH_LONG).show();
 
                 FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                Course course = new Course(courseIdFromDB,courseName,year,numberOfClassesInCourses,courseCode,schoolCode);
+                Course course = new Course(courseIdFromDB,courseName,year,numberOfClassesInCourses,courseCode,schoolCode,studentIds);
                 Map<String, Object> courseValues = course.toMap();
                 Map<String, Object> childUpdates = new HashMap<>();
                 childUpdates.put("/courses/" + courseIdFromDB, courseValues);

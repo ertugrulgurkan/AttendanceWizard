@@ -1,21 +1,15 @@
 package com.ertugrul.attendancewithfacerecognition.DB;
 
-import androidx.annotation.NonNull;
-import androidx.room.Entity;
-import androidx.room.PrimaryKey;
-
 import com.google.firebase.database.Exclude;
 import com.google.firebase.database.IgnoreExtraProperties;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-@Entity
 @IgnoreExtraProperties
 public class Course {
 
-    @PrimaryKey
-    @NonNull
     public String courseId;
     //largePersonGroupId
     private String courseName;
@@ -23,14 +17,16 @@ public class Course {
     private String numberOfClasses;
     private String courseCode;
     private String schoolCode;
+    private List<String> studentIds;
 
-    public Course(String courseId,String courseName, String year, String numberOfClasses, String courseCode,String schoolCode) {
+    public Course(String courseId,String courseName, String year, String numberOfClasses, String courseCode,String schoolCode,List<String> studentIds) {
         this.courseId = courseId;
         this.courseName = courseName;
         this.year = year;
         this.numberOfClasses = numberOfClasses;
         this.courseCode = courseCode;
         this.schoolCode=schoolCode;
+        this.studentIds = studentIds;
     }
 
     public String getCourseName() {
@@ -65,12 +61,11 @@ public class Course {
         this.courseCode = courseCode;
     }
 
-    @NonNull
     public String getCourseId() {
         return courseId;
     }
 
-    public void setCourseId(@NonNull String courseId) {
+    public void setCourseId(String courseId) {
         this.courseId = courseId;
     }
 
@@ -82,6 +77,14 @@ public class Course {
         this.schoolCode = schoolCode;
     }
 
+    public List<String> getStudentIds() {
+        return studentIds;
+    }
+
+    public void setStudentIds(List<String> studentIds) {
+        this.studentIds = studentIds;
+    }
+
     @Exclude
     public Map<String, Object> toMap() {
         HashMap<String, Object> result = new HashMap<>();
@@ -91,7 +94,7 @@ public class Course {
         result.put("year", year);
         result.put("numberOfClasses", numberOfClasses);
         result.put("schoolCode", schoolCode);
-
+        result.put("studentIds",studentIds);
         return result;
     }
 }

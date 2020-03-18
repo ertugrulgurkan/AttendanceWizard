@@ -38,8 +38,6 @@
         android:layout_gravity="center"
         >
 
-
-
         <RadioGroup
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -163,7 +161,7 @@
                 android:id="@+id/studentNo"
                 android:hint="Student Number"
                 android:singleLine="true"
-                android:inputType="textCapWords"
+                android:inputType="number"
                 android:textColor="#fff"/>
         </com.google.android.material.textfield.TextInputLayout>
 

@@ -12,7 +12,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -53,9 +52,6 @@ public class AddStudent extends AppCompatActivity {
         setContentView(R.layout.activity_add_student);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
-        TextView toolbarSubtitle = toolbar.findViewById(R.id.toolbar_subtitle);
-        toolbarSubtitle.setText((AppDatabase.getAppDatabase(this)).courseDao().getCourseNameById(Prefs.getString("courseId", "")));
-
         setSupportActionBar(toolbar);
 
         getSupportActionBar().setDisplayShowTitleEnabled(false);

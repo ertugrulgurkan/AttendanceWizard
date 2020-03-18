@@ -22,7 +22,6 @@
         android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
         android:theme="@style/AppTheme.NoActionBar">
-        <activity android:name=".StudentExample"></activity>
 
         <uses-library
             android:name="org.apache.http.legacy"
@@ -44,6 +43,7 @@
                 android:value="com.ertugrul.attendancewithfacerecognition.Menu" />
         </activity>
         <activity android:name=".EditCourses" />
+        <activity android:name=".ShowCourses" />
         <activity android:name=".AddCourse">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

@@ -85,7 +85,7 @@ public class SignIn extends AppCompatActivity {
         if (user != null) {
             // User is signed in
             if (userType.equals("student"))
-                startActivity(new Intent(SignIn.this, UploadPhoto.class));
+                startActivity(new Intent(SignIn.this, ShowCourses.class ));
             else if (userType.equals("teacher"))
                 startActivity(new Intent(SignIn.this, EditCourses.class));
         }
@@ -140,7 +140,7 @@ public class SignIn extends AppCompatActivity {
                                     Prefs.putString("UserCourseIds", new Gson().toJson(courseIds));
                                     if (isStudent) {
                                         Prefs.putString("userType","student");
-                                        Intent i = new Intent(SignIn.this, UploadPhoto.class);
+                                        Intent i = new Intent(SignIn.this, ShowCourses.class);
                                         i.setFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
                                         i.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
                                         //finish();

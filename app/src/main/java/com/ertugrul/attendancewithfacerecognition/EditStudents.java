@@ -58,8 +58,6 @@ public class EditStudents extends AppCompatActivity {
         AppDatabase db = AppDatabase.getAppDatabase(this);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
-        TextView toolbarSubtitle = toolbar.findViewById(R.id.toolbar_subtitle);
-        toolbarSubtitle.setText(db.courseDao().getCourseNameById(Prefs.getString("courseId", "")));
 
         setSupportActionBar(toolbar);
 

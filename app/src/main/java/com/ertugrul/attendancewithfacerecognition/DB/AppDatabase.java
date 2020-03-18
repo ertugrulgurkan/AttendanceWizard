@@ -7,12 +7,11 @@ import androidx.room.Room;
 import androidx.room.RoomDatabase;
 
 
-@Database(entities = {Course.class, Student.class, Attendance.class}, version = 1, exportSchema = false)
+@Database(entities = {Student.class, Attendance.class}, version = 1, exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase {
 
     private static AppDatabase INSTANCE;
 
-    public abstract CourseDao courseDao();
     public abstract StudentDao studentDao();
     public abstract AttendanceDao attendanceDao();
 

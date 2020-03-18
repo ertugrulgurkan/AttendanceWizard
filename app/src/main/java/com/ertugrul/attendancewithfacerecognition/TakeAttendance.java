@@ -363,7 +363,8 @@ public class TakeAttendance extends AppCompatActivity {
 
             AppDatabase db = AppDatabase.getAppDatabase(getApplicationContext());
             final int attendanceNumber = db.attendanceDao().getAttendance(student.courseId, student.regNo).attendanceNumber;
-            int maxAttendance = db.courseDao().getNumberOfClasses(student.courseId);
+            int maxAttendance = 0;
+                    //db.courseDao().getNumberOfClasses(student.courseId);
 
             attendanceText.setText(""+attendanceNumber);
             maxAttendanceText.setText("/"+maxAttendance);

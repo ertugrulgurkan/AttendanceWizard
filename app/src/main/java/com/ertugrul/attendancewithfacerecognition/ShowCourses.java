@@ -23,7 +23,6 @@ import androidx.appcompat.widget.Toolbar;
 
 import com.ertugrul.attendancewithfacerecognition.DB.Course;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -39,9 +38,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import de.hdodenhof.circleimageview.CircleImageView;
-
-public class EditCourses extends AppCompatActivity {
+public class ShowCourses extends AppCompatActivity {
 
     ListView courseListView;
     CoursesListAdapter coursesListAdapter;
@@ -53,7 +50,7 @@ public class EditCourses extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_edit_courses);
+        setContentView(R.layout.activity_show_courses);
 
         setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
 
@@ -64,13 +61,6 @@ public class EditCourses extends AppCompatActivity {
         courseIds = new ArrayList<>(Arrays.asList(((new Gson()).fromJson(Prefs.getString("UserCourseIds",""), String[].class))));
         courseListView = findViewById(R.id.courseList);
 
-        (findViewById(R.id.addCourseFab)).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                startActivity(new Intent(EditCourses.this, AddCourse.class));
-            }
-        });
         //Log.v("EditCourses", Prefs.getString("UserID", "A"));
         //Log.v("EditCourses", Prefs.getString("UserEmail", "A"));
         //Log.v("EditCourses", Prefs.getString("UserDisplayName", "A"));
@@ -95,7 +85,7 @@ public class EditCourses extends AppCompatActivity {
                         switch (which){
                             case DialogInterface.BUTTON_POSITIVE:
                                 FirebaseAuth.getInstance().signOut();
-                                startActivity(new Intent(EditCourses.this, MainActivity.class));
+                                startActivity(new Intent(ShowCourses.this, MainActivity.class));
                                 finish();
                                 break;
 
@@ -105,7 +95,7 @@ public class EditCourses extends AppCompatActivity {
                         }
                     }
                 };
-                AlertDialog.Builder ab = new AlertDialog.Builder(EditCourses.this);
+                AlertDialog.Builder ab = new AlertDialog.Builder(ShowCourses.this);
                 ab.setMessage("Are you sure you want to Logout?").setPositiveButton("Yes", dialogClickListener)
                         .setNegativeButton("No", dialogClickListener).show();
                 return true;
@@ -122,6 +112,11 @@ public class EditCourses extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        try {
+            courseIds = new GetAllCourses().execute(courseIds).get();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         new GetPersonGroupList().execute();
     }
 
@@ -161,35 +156,8 @@ public class EditCourses extends AppCompatActivity {
                 public void onClick(View view) {
                     //Prefs.putString("courseId", course.courseId);
 
-                    Intent intent = new Intent(EditCourses.this, Menu.class);
+                    Intent intent = new Intent(ShowCourses.this, Menu.class);
                     startActivity(intent);
-                }
-            });
-
-            CircleImageView deleteCourseButton = convertView.findViewById(R.id.deleteCourseButton);
-            deleteCourseButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-
-                    DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            switch (which){
-                                case DialogInterface.BUTTON_POSITIVE:
-                                    //new DeletePersonGroupTask().execute(course.courseId);
-                                    break;
-
-                                case DialogInterface.BUTTON_NEGATIVE:
-                                    dialog.dismiss();
-                                    break;
-                            }
-                        }
-                    };
-                    AlertDialog.Builder ab = new AlertDialog.Builder(EditCourses.this);
-                    ab.setMessage("Are you sure to delete this course?").setPositiveButton("Yes", dialogClickListener)
-                            .setNegativeButton("No", dialogClickListener).show();
-
-
                 }
             });
 
@@ -201,6 +169,32 @@ public class EditCourses extends AppCompatActivity {
 
         }
     }
+
+    class GetAllCourses extends AsyncTask <List<String>, Void , List<String>>{
+        List<String> list = new ArrayList<>();
+        protected List<String> doInBackground(List<String>... lists) {
+            schoolCode = Prefs.getString("schoolCode", "");
+            list = lists[0];
+
+            DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
+            DatabaseReference schoolRef = dbRef.child("courses");
+            schoolRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    for (DataSnapshot ds : dataSnapshot.getChildren()) {
+                        if (ds.child("schoolCode").getValue().equals(schoolCode))
+                            list.add((String) ds.child("courseId").getValue());
+                    }
+                }
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                }
+            });
+            return list;
+        }
+    }
+
+
 
     class GetPersonGroupList extends AsyncTask<Void, Void, LargePersonGroup[]> {
 
@@ -238,13 +232,13 @@ public class EditCourses extends AppCompatActivity {
 
             //if lpg course of not user remove
             if (allLpgs.length==0){
-                Toast.makeText(EditCourses.this, "No Courses Created Yet", Toast.LENGTH_LONG).show();
+                Toast.makeText(ShowCourses.this, "No Courses Created Yet", Toast.LENGTH_LONG).show();
                 (findViewById(R.id.classListProgress)).setVisibility(View.GONE);
                 return;
             }
 
             if (courseIds.equals("")){
-                Toast.makeText(EditCourses.this, "No Courses Created Yet", Toast.LENGTH_LONG).show();
+                Toast.makeText(ShowCourses.this, "No Courses Created Yet", Toast.LENGTH_LONG).show();
                 (findViewById(R.id.classListProgress)).setVisibility(View.GONE);
                 return;
             }
@@ -257,7 +251,7 @@ public class EditCourses extends AppCompatActivity {
             }
 
             if (courseLpgs.size() == 0){
-                Toast.makeText(EditCourses.this, "No Courses Created Yet", Toast.LENGTH_LONG).show();
+                Toast.makeText(ShowCourses.this, "No Courses Created Yet", Toast.LENGTH_LONG).show();
                 (findViewById(R.id.classListProgress)).setVisibility(View.GONE);
                 return;
             }
@@ -270,29 +264,15 @@ public class EditCourses extends AppCompatActivity {
 
             (findViewById(R.id.classListProgress)).setVisibility(View.GONE);
 
-            coursesListAdapter = new CoursesListAdapter(EditCourses.this, R.layout.list_course_row, courseList);
+            coursesListAdapter = new CoursesListAdapter(ShowCourses.this, R.layout.list_course_row, courseList);
             courseListView.setAdapter(coursesListAdapter);
 
 
 
         }
-
-        private class CourseData{
-            String courseName;
-            String year;
-            String numberOfClasses;
-            String courseCode;
-
-            public CourseData(String courseName, String year, String numberOfClasses, String courseCode) {
-                this.courseName = courseName;
-                this.year = year;
-                this.numberOfClasses = numberOfClasses;
-                this.courseCode = courseCode;
-            }
-        }
     }
 
-    class DeletePersonGroupTask extends AsyncTask<String, Void, String> {
+    /*class DeletePersonGroupTask extends AsyncTask<String, Void, String> {
 
         @Override
         protected String doInBackground(String... params) {
@@ -318,7 +298,9 @@ public class EditCourses extends AppCompatActivity {
         @Override
         protected void onPostExecute(final String deletedCourseId) {
             if(!deletedCourseId.equals("")){
-                Toast.makeText(EditCourses.this, "Course successfully deleted", Toast.LENGTH_LONG).show();
+                Toast.makeText(ShowCourses.this, "Course successfully deleted", Toast.LENGTH_LONG).show();
+
+                AppDatabase db = AppDatabase.getAppDatabase(getApplicationContext());
 
                 FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
                 FirebaseDatabase d = FirebaseDatabase.getInstance();
@@ -347,10 +329,10 @@ public class EditCourses extends AppCompatActivity {
                 onStart();
             }
             else{
-                Toast.makeText(EditCourses.this, "Course could not be deleted", Toast.LENGTH_LONG).show();
+                Toast.makeText(ShowCourses.this, "Course could not be deleted", Toast.LENGTH_LONG).show();
             }
         }
     }
-
+*/
 
 }
