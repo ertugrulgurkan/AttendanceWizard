@@ -16,6 +16,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -61,7 +62,8 @@ public class UploadPhoto extends AppCompatActivity {
         getSupportActionBar().setElevation(100);
 
         takenImageForStudent = findViewById(R.id.takenImageForStudent);
-
+        ((EditText)findViewById(R.id.regNo)).setText(Prefs.getString("userId", ""), TextView.BufferType.EDITABLE);
+        ((EditText)findViewById(R.id.studentName)).setText(Prefs.getString("selectedCourseId", ""), TextView.BufferType.EDITABLE);
         takenImageForStudent.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -93,7 +95,7 @@ public class UploadPhoto extends AppCompatActivity {
                     if(!imageTaken){
                         Toast.makeText(UploadPhoto.this, "Select an image for the student", Toast.LENGTH_SHORT).show();
                     }
-                    else if (studentName.equals("")){
+                    /*else if (studentName.equals("")){
                         ((EditText)findViewById(R.id.studentName)).setError("Please enter a Student Name");
                         (findViewById(R.id.studentName)).requestFocus();
                     }
@@ -105,9 +107,9 @@ public class UploadPhoto extends AppCompatActivity {
                         ((EditText)findViewById(R.id.regNo)).setError("Registration number should be unique");
                         (findViewById(R.id.regNo)).requestFocus();
                     }
-
+                    */
                     else{
-                        new AddPersonTask().execute(Prefs.getString("courseId", ""), studentName, regNo);
+                        new AddPersonTask().execute(Prefs.getString("selectedCourseId", ""), studentName, Prefs.getString("userId", ""));
                     }
                 }
                 else{
@@ -272,7 +274,7 @@ public class UploadPhoto extends AppCompatActivity {
                 InputStream imageInputStream = new ByteArrayInputStream(stream.toByteArray());
 
                 AddPersistedFaceResult result = faceServiceClient.addPersonFaceInLargePersonGroup(
-                        Prefs.getString("courseId", ""),
+                        Prefs.getString("selectedCourseId", ""),
                         personId,
                         imageInputStream,
                         "",
@@ -319,7 +321,7 @@ public class UploadPhoto extends AppCompatActivity {
             Toast.makeText(UploadPhoto.this, "Face was successfully added to the student", Toast.LENGTH_SHORT).show();
 
             //Toast.makeText(AddStudent.this, "Face with persistedFaceId "+persistedFaceId+" successfully created", Toast.LENGTH_SHORT).show();
-            startActivity(new Intent(UploadPhoto.this, EditStudents.class));
+            startActivity(new Intent(UploadPhoto.this, ShowCourses.class));
         }
     }
 }

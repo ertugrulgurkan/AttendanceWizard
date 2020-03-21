@@ -125,10 +125,13 @@ public class SignIn extends AppCompatActivity {
 
                                     boolean isStudent = false;
                                     String schoolCode="";
+                                    String userId="";
                                     List<String> courseIds = new ArrayList<>();
                                     for (DataSnapshot ds : dataSnapshot.getChildren()) {
                                         if (ds.getValue().equals("student"))
                                             isStudent = true;
+                                        if (ds.getKey().equals("userId"))
+                                            userId = ds.getValue(String.class);
                                         if (ds.getKey().equals("schoolCode"))
                                             schoolCode = ds.getValue(String.class);
                                         if (ds.getKey().equals("courseIds")){
@@ -136,6 +139,7 @@ public class SignIn extends AppCompatActivity {
                                             courseIds = new ArrayList<>(hashMap.values());
                                         }
                                     }
+                                    Prefs.putString("userId",userId);
                                     Prefs.putString("schoolCode", schoolCode);
                                     Prefs.putString("UserCourseIds", new Gson().toJson(courseIds));
                                     if (isStudent) {

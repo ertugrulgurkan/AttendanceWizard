@@ -154,9 +154,9 @@ public class ShowCourses extends AppCompatActivity {
             courseNameAndYear.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    //Prefs.putString("courseId", course.courseId);
-
-                    Intent intent = new Intent(ShowCourses.this, Menu.class);
+                    Prefs.putString("selectedCourseId", course.courseId);
+                    /// buraya bir async task konup boolean değerle enroll olunup olunmadığı kontol edilebilir. eğer olunmussa toast mesajı ile you are already enrolled this course yazılabilir.
+                    Intent intent = new Intent(ShowCourses.this, UploadPhoto.class);
                     startActivity(intent);
                 }
             });
