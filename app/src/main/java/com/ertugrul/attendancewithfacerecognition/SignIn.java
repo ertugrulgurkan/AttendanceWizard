@@ -141,7 +141,7 @@ public class SignIn extends AppCompatActivity {
                                     }
                                     Prefs.putString("userId",userId);
                                     Prefs.putString("schoolCode", schoolCode);
-                                    Prefs.putString("UserCourseIds", new Gson().toJson(courseIds));
+                                    Prefs.putString("userCourseIds", new Gson().toJson(courseIds));
                                     if (isStudent) {
                                         Prefs.putString("userType","student");
                                         Intent i = new Intent(SignIn.this, ShowCourses.class);

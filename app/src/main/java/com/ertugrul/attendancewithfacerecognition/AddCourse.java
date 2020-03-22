@@ -45,7 +45,7 @@ public class AddCourse extends AppCompatActivity {
         setContentView(R.layout.activity_add_course);
         mDatabase = FirebaseDatabase.getInstance().getReference();
         schoolCode = Prefs.getString("schoolCode", "");
-        courseIds = Arrays.asList(((new Gson()).fromJson(Prefs.getString("UserCourseIds",""), String[].class)));
+        courseIds = Arrays.asList(((new Gson()).fromJson(Prefs.getString("userCourseIds",""), String[].class)));
         setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         getSupportActionBar().setElevation(100);
@@ -158,9 +158,9 @@ public class AddCourse extends AppCompatActivity {
                 childUpdates.put("/users/" + user.getUid() + "/courseIds/"+ courseIdFromDB, courseIdFromDB);
                 childUpdates.put("/teachers/" + user.getUid() + "/courseIds/"+ courseIdFromDB, courseIdFromDB);
                 mDatabase.updateChildren(childUpdates);
-                List<String> userCourseIds = new ArrayList<>(Arrays.asList(((new Gson()).fromJson(Prefs.getString("UserCourseIds", ""), String[].class))));
+                List<String> userCourseIds = new ArrayList<>(Arrays.asList(((new Gson()).fromJson(Prefs.getString("userCourseIds", ""), String[].class))));
                 userCourseIds.add(courseIdFromDB);
-                Prefs.putString("UserCourseIds", new Gson().toJson(userCourseIds));
+                Prefs.putString("userCourseIds", new Gson().toJson(userCourseIds));
                 /*mDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
@@ -189,7 +189,7 @@ public class AddCourse extends AppCompatActivity {
                         currentUser.setCourseIds(courseIds);
                         databaseReference.setValue(currentUser);
 
-                        Prefs.putString("UserCourseIds", new Gson().toJson(currentUser.getCourseIds()));
+                        Prefs.putString("userCourseIds", new Gson().toJson(currentUser.getCourseIds()));
                     }
 
                     @Override

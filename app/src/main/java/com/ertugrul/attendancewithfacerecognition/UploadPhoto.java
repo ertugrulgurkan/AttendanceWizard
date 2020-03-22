@@ -28,6 +28,8 @@ import androidx.core.content.ContextCompat;
 import com.ertugrul.attendancewithfacerecognition.DB.AppDatabase;
 import com.ertugrul.attendancewithfacerecognition.Utilities.ImagePicker;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.microsoft.projectoxford.face.FaceServiceClient;
 import com.microsoft.projectoxford.face.FaceServiceRestClient;
 import com.microsoft.projectoxford.face.contract.AddPersistedFaceResult;
@@ -39,6 +41,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 public class UploadPhoto extends AppCompatActivity {
@@ -49,7 +53,8 @@ public class UploadPhoto extends AppCompatActivity {
     ImageView takenImageForStudent;
     private static final int PICK_IMAGE_ID = 200;
     Bitmap bitmap;
-
+    FirebaseDatabase d;
+    DatabaseReference dbRef;
     boolean imageTaken = false;
 
     @Override
@@ -62,6 +67,9 @@ public class UploadPhoto extends AppCompatActivity {
         getSupportActionBar().setElevation(100);
 
         takenImageForStudent = findViewById(R.id.takenImageForStudent);
+        d = FirebaseDatabase.getInstance();
+        dbRef = d.getReference();
+
         ((EditText)findViewById(R.id.regNo)).setText(Prefs.getString("userId", ""), TextView.BufferType.EDITABLE);
         ((EditText)findViewById(R.id.studentName)).setText(Prefs.getString("selectedCourseId", ""), TextView.BufferType.EDITABLE);
         takenImageForStudent.setOnClickListener(new View.OnClickListener() {
@@ -87,8 +95,8 @@ public class UploadPhoto extends AppCompatActivity {
             public void onClick(View view) {
 
                 if (alreadyHasPermission()){
-                    studentName = ((EditText)findViewById(R.id.studentName)).getText().toString();
-                    regNo = ((EditText)findViewById(R.id.regNo)).getText().toString();
+                    //studentName = ((EditText)findViewById(R.id.studentName)).getText().toString();
+                    //regNo = ((EditText)findViewById(R.id.regNo)).getText().toString();
 
                     AppDatabase database = AppDatabase.getAppDatabase(getApplicationContext());
 
@@ -109,7 +117,7 @@ public class UploadPhoto extends AppCompatActivity {
                     }
                     */
                     else{
-                        new AddPersonTask().execute(Prefs.getString("selectedCourseId", ""), studentName, Prefs.getString("userId", ""));
+                        new AddPersonTask().execute(Prefs.getString("selectedCourseId", ""), Prefs.getString("userName", ""), Prefs.getString("userId", ""));
                     }
                 }
                 else{
@@ -249,11 +257,15 @@ public class UploadPhoto extends AppCompatActivity {
 
             if (personId != null) {
                 Log.v("","Response: Success. Person " + personId + " created.");
-
+                String userId = Prefs.getString("userId", "");
+                String selectedCourseId = Prefs.getString("selectedCourseId", "");
                 //Toast.makeText(AddStudent.this, "Person with personId "+personId+" successfully created", Toast.LENGTH_SHORT).show();
                 Toast.makeText(UploadPhoto.this, "Student was successfully created", Toast.LENGTH_SHORT).show();
-
-
+                Map<String, Object> childUpdates = new HashMap<>();
+                childUpdates.put("/users/" + userId + "/courseIds/"+ selectedCourseId, selectedCourseId);
+                childUpdates.put("/students/" + userId + "/courseIds/"+ selectedCourseId, selectedCourseId);
+                childUpdates.put("/courses/" + selectedCourseId + "/studentIds/"+ userId, userId);
+                dbRef.updateChildren(childUpdates);
                 new AddFaceTask().execute(personId);
             }
         }

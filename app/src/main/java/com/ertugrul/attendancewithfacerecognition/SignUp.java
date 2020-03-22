@@ -256,6 +256,7 @@ public class SignUp extends AppCompatActivity {
                                         Prefs.putString("userType","teacher");
                                         Prefs.putString("email", emailText);
                                         Prefs.putString("fullName", fullNameText);
+                                        Prefs.putString("userName", fullNameText);
                                         Prefs.putString("schoolCode", schoolCodeText);
                                         Prefs.putString("title", titleText);
                                         Prefs.putString("courseIds", new Gson().toJson(courseIds));
@@ -300,9 +301,10 @@ public class SignUp extends AppCompatActivity {
                                         Prefs.putString("userType","student");
                                         Prefs.putString("email", emailText);
                                         Prefs.putString("fullName", fullNameText);
+                                        Prefs.putString("userName", fullNameText);
                                         Prefs.putString("schoolCode", schoolCodeText);
                                         Prefs.putString("studentId", studentNoText);
-                                        Prefs.putString("UserCourseIds", new Gson().toJson(courseIds));
+                                        Prefs.putString("userCourseIds", new Gson().toJson(courseIds));
                                         Prefs.putString("userId",user.getUid());
                                         startActivity(i);
                                     }

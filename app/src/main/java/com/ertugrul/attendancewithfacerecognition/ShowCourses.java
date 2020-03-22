@@ -2,6 +2,7 @@ package com.ertugrul.attendancewithfacerecognition;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -45,26 +46,33 @@ public class ShowCourses extends AppCompatActivity {
     DatabaseReference mDatabase;
     String schoolCode;
     List<String> courseIds;
-
+    FirebaseDatabase d;
+    DatabaseReference dbRef;
+    String userName;
+    String userId;
+    String selectedCourseId;
+    ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_show_courses);
-
+        d = FirebaseDatabase.getInstance();
+        dbRef = d.getReference();
         setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
 
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         getSupportActionBar().setElevation(100);
         mDatabase = FirebaseDatabase.getInstance().getReference();
         schoolCode = Prefs.getString("schoolCode", "");
-        courseIds = new ArrayList<>(Arrays.asList(((new Gson()).fromJson(Prefs.getString("UserCourseIds",""), String[].class))));
+        courseIds = new ArrayList<>(Arrays.asList(((new Gson()).fromJson(Prefs.getString("userCourseIds", ""), String[].class))));
         courseListView = findViewById(R.id.courseList);
+
 
         //Log.v("EditCourses", Prefs.getString("UserID", "A"));
         //Log.v("EditCourses", Prefs.getString("UserEmail", "A"));
         //Log.v("EditCourses", Prefs.getString("UserDisplayName", "A"));
-        //Log.v("EditCourses", Prefs.getString("UserCourseIds", "A"));
+        //Log.v("EditCourses", Prefs.getString("userCourseIds", "A"));
     }
 
 
@@ -82,7 +90,7 @@ public class ShowCourses extends AppCompatActivity {
                 DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        switch (which){
+                        switch (which) {
                             case DialogInterface.BUTTON_POSITIVE:
                                 FirebaseAuth.getInstance().signOut();
                                 startActivity(new Intent(ShowCourses.this, MainActivity.class));
@@ -114,12 +122,12 @@ public class ShowCourses extends AppCompatActivity {
         super.onStart();
         try {
             courseIds = new GetAllCourses().execute(courseIds).get();
+            new GetStudentName().execute();
         } catch (Exception e) {
             e.printStackTrace();
         }
         new GetPersonGroupList().execute();
     }
-
 
 
     public class CoursesListAdapter extends ArrayAdapter<Course> {
@@ -141,10 +149,10 @@ public class ShowCourses extends AppCompatActivity {
         public View getView(int position, View convertView, ViewGroup parent) {
 
             final Course course = getItem(position);
-
+            selectedCourseId = course.courseId;
             if (convertView == null) {
                 LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                convertView = inflater.inflate(R.layout.list_course_row, parent, false);
+                convertView = inflater.inflate(R.layout.list_all_course_row, parent, false);
             }
 
 
@@ -154,15 +162,70 @@ public class ShowCourses extends AppCompatActivity {
             courseNameAndYear.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Prefs.putString("selectedCourseId", course.courseId);
-                    /// buraya bir async task konup boolean değerle enroll olunup olunmadığı kontol edilebilir. eğer olunmussa toast mesajı ile you are already enrolled this course yazılabilir.
-                    Intent intent = new Intent(ShowCourses.this, UploadPhoto.class);
-                    startActivity(intent);
+                    progressDialog = ProgressDialog.show(ShowCourses.this,
+                            "Please Wait",
+                            "Loading...");
+                        Prefs.putString("selectedCourseId", course.courseId);
+                        Log.i("LOG", "Student full name is : " + userName);
+                        Log.i("LOG", "Selected Course id is : " + selectedCourseId);
+                    DatabaseReference databaseReference = dbRef.child("courses").child(course.courseId).child("studentIds");
+                    databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+
+                            Boolean isEnrolled = false;
+                            for (DataSnapshot ds : dataSnapshot.getChildren()) {
+                                if (ds.getValue().equals(userId))
+                                    isEnrolled = true;
+                            }
+                            progressDialog.dismiss();
+                            if (isEnrolled){
+                                Toast.makeText(ShowCourses.this, "Already enrolled this course.", Toast.LENGTH_LONG).show();
+                            }
+                            else{
+                                Intent intent = new Intent(ShowCourses.this, UploadPhoto.class);
+                                startActivity(intent);
+                            }
+
+                        }
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+                        }
+                    });
+
+
+
+
+                    /////
+
+
+
+
+
+                    //Boolean isEnrolled;
+                    //try {
+                    //    isEnrolled = new checkEnrolled().execute().get();
+                    //    if (isEnrolled){
+                    //        /// buraya bir async task konup boolean değerle enroll olunup olunmadığı kontol edilebilir. eğer olunmussa toast mesajı ile you are already enrolled this course yazılabilir.
+                    //        Intent intent = new Intent(ShowCourses.this, UploadPhoto.class);
+                    //        startActivity(intent);
+                    //    }
+                    //    else{
+                    //        Toast.makeText(ShowCourses.this, "Already enrolled this course.", Toast.LENGTH_LONG).show();
+                    //    }
+                    //} catch (ExecutionException e) {
+                    //    e.printStackTrace();
+                    //} catch (InterruptedException e) {
+                    //    e.printStackTrace();
+                    //}
+
+
                 }
             });
 
             assert course != null;
-            courseNameAndYear.setText(course.getCourseName()+" - Year "+course.getYear());
+            courseNameAndYear.setText(course.getCourseName() + " - Year " + course.getYear());
             courseCode.setText(course.getCourseCode());
 
             return convertView;
@@ -170,8 +233,9 @@ public class ShowCourses extends AppCompatActivity {
         }
     }
 
-    class GetAllCourses extends AsyncTask <List<String>, Void , List<String>>{
+    class GetAllCourses extends AsyncTask<List<String>, Void, List<String>> {
         List<String> list = new ArrayList<>();
+
         protected List<String> doInBackground(List<String>... lists) {
             schoolCode = Prefs.getString("schoolCode", "");
             list = lists[0];
@@ -186,26 +250,27 @@ public class ShowCourses extends AppCompatActivity {
                             list.add((String) ds.child("courseId").getValue());
                     }
                 }
+
                 @Override
                 public void onCancelled(DatabaseError databaseError) {
                 }
             });
+
             return list;
         }
     }
-
 
 
     class GetPersonGroupList extends AsyncTask<Void, Void, LargePersonGroup[]> {
 
         @Override
         protected LargePersonGroup[] doInBackground(Void... params) {
-            Log.v("","Generate list of all person groups");
+            Log.v("", "Generate list of all person groups");
 
             // Get an instance of face service client.
             FaceServiceClient faceServiceClient = new FaceServiceRestClient(getString(R.string.subscription_key));
-            try{
-                Log.v("",("Syncing with server to add person group..."));
+            try {
+                Log.v("", ("Syncing with server to add person group..."));
 
                 return faceServiceClient.listLargePersonGroups();
             } catch (Exception e) {
@@ -213,8 +278,6 @@ public class ShowCourses extends AppCompatActivity {
                 return null;
             }
         }
-
-
 
 
         @Override
@@ -231,13 +294,13 @@ public class ShowCourses extends AppCompatActivity {
         protected void onPostExecute(LargePersonGroup[] allLpgs) {
 
             //if lpg course of not user remove
-            if (allLpgs.length==0){
+            if (allLpgs.length == 0) {
                 Toast.makeText(ShowCourses.this, "No Courses Created Yet", Toast.LENGTH_LONG).show();
                 (findViewById(R.id.classListProgress)).setVisibility(View.GONE);
                 return;
             }
 
-            if (courseIds.equals("")){
+            if (courseIds.equals("")) {
                 Toast.makeText(ShowCourses.this, "No Courses Created Yet", Toast.LENGTH_LONG).show();
                 (findViewById(R.id.classListProgress)).setVisibility(View.GONE);
                 return;
@@ -245,19 +308,19 @@ public class ShowCourses extends AppCompatActivity {
 
             List<LargePersonGroup> courseLpgs = new ArrayList<>();
 
-            for (LargePersonGroup lpg: allLpgs){
+            for (LargePersonGroup lpg : allLpgs) {
                 if (courseIds.contains(lpg.largePersonGroupId))
                     courseLpgs.add(lpg);
             }
 
-            if (courseLpgs.size() == 0){
+            if (courseLpgs.size() == 0) {
                 Toast.makeText(ShowCourses.this, "No Courses Created Yet", Toast.LENGTH_LONG).show();
                 (findViewById(R.id.classListProgress)).setVisibility(View.GONE);
                 return;
             }
 
             List<Course> courseList = new ArrayList<>();
-            for (LargePersonGroup lpg: courseLpgs){
+            for (LargePersonGroup lpg : courseLpgs) {
                 Course course = (new Gson()).fromJson(lpg.userData, Course.class);
                 courseList.add(course);
             }
@@ -268,10 +331,79 @@ public class ShowCourses extends AppCompatActivity {
             courseListView.setAdapter(coursesListAdapter);
 
 
-
         }
     }
 
+    class GetStudentName extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            userId = Prefs.getString("userId", "");
+            DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
+            DatabaseReference studentRef = dbRef.child("students");
+            studentRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    for (DataSnapshot ds : dataSnapshot.getChildren()) {
+                        if (ds.getKey().equals(userId)){
+                            userName = ds.child("fullName").getValue(String.class);
+                            Prefs.putString("userName", userName);
+                        }
+                    }
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                }
+            });
+            return null;
+        }
+    }
+    private class checkEnrolled extends AsyncTask<Void, Void, Boolean>{
+
+        boolean running;
+        boolean isEnrolled = false;
+        ProgressDialog progressDialog;
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            running = true;
+
+            progressDialog = ProgressDialog.show(ShowCourses.this,
+                    "Please Wait",
+                    "Loading...");
+
+            //Toast.makeText(ShowCourses.this,"Progress Start",Toast.LENGTH_LONG).show();
+        }
+        @Override
+        protected Boolean doInBackground(Void... params) {
+            DatabaseReference databaseReference = dbRef.child("courses").child(selectedCourseId);
+            databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    for (DataSnapshot ds : dataSnapshot.getChildren()) {
+                        if (ds.child("studentIds").exists() && ds.child("studentIds").getValue().equals(userId))
+                            isEnrolled = true;
+                    }
+                    //progressDialog.dismiss();
+                }
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                }
+            });
+            return isEnrolled;
+        }
+        @Override
+        protected void onPostExecute(Boolean result) {
+            super.onPostExecute(result);
+            //Toast.makeText(ShowCourses.this,"Progress Ended",Toast.LENGTH_LONG).show();
+            //progressDialog.dismiss();
+        }
+
+    }
+
+}
     /*class DeletePersonGroupTask extends AsyncTask<String, Void, String> {
 
         @Override
@@ -335,4 +467,4 @@ public class ShowCourses extends AppCompatActivity {
     }
 */
 
-}
+

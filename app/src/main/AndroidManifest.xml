@@ -60,6 +60,9 @@
                 android:value="com.ertugrul.attendancewithfacerecognition.EditStudents" />
         </activity>
         <activity android:name=".UploadPhoto">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.ertugrul.attendancewithfacerecognition.ShowCourses" />
         </activity>
         <activity android:name=".SignIn" />
         <activity android:name=".MainActivity">

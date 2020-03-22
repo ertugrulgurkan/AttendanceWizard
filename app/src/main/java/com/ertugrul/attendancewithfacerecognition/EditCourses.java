@@ -61,7 +61,7 @@ public class EditCourses extends AppCompatActivity {
         getSupportActionBar().setElevation(100);
         mDatabase = FirebaseDatabase.getInstance().getReference();
         schoolCode = Prefs.getString("schoolCode", "");
-        courseIds = new ArrayList<>(Arrays.asList(((new Gson()).fromJson(Prefs.getString("UserCourseIds",""), String[].class))));
+        courseIds = new ArrayList<>(Arrays.asList(((new Gson()).fromJson(Prefs.getString("userCourseIds",""), String[].class))));
         courseListView = findViewById(R.id.courseList);
 
         (findViewById(R.id.addCourseFab)).setOnClickListener(new View.OnClickListener() {
@@ -74,7 +74,7 @@ public class EditCourses extends AppCompatActivity {
         //Log.v("EditCourses", Prefs.getString("UserID", "A"));
         //Log.v("EditCourses", Prefs.getString("UserEmail", "A"));
         //Log.v("EditCourses", Prefs.getString("UserDisplayName", "A"));
-        //Log.v("EditCourses", Prefs.getString("UserCourseIds", "A"));
+        //Log.v("EditCourses", Prefs.getString("userCourseIds", "A"));
     }
 
 
