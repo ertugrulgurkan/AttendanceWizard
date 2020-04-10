@@ -22,6 +22,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import com.ertugrul.attendancewithfacerecognition.DB.Course;
+import com.ertugrul.attendancewithfacerecognition.DB.StudentLogin;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -37,6 +38,7 @@ import com.pixplicity.easyprefs.library.Prefs;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -159,10 +161,41 @@ public class EditCourses extends AppCompatActivity {
             courseNameAndYear.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    //Prefs.putString("courseId", course.courseId);
-
-                    Intent intent = new Intent(EditCourses.this, Menu.class);
-                    startActivity(intent);
+                    Prefs.putString("courseId", course.courseId);
+                    DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
+                    dbRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                        List<String> studentIds = new ArrayList<>();
+                        List<StudentLogin> students = new ArrayList<>();
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            for (DataSnapshot ds : dataSnapshot.child("courses").getChildren()) {
+                                if (ds.child("courseId").getValue().equals(course.courseId)){
+                                    HashMap<String,String> hashMap = (HashMap<String, String>) ds.child("studentIds").getValue();
+                                    studentIds = new ArrayList<>(hashMap.values());
+                                }
+                            }
+                            for (DataSnapshot ds : dataSnapshot.child("students").getChildren()) {
+                                for (String studentId : studentIds){
+                                    if (ds.child("userId").getValue().equals(studentId)){
+                                        StudentLogin student = new StudentLogin();
+                                        student.setUserId(studentId);
+                                        student.setEmail((String)ds.child("email").getValue());
+                                        student.setFullName((String)ds.child("fullName").getValue());
+                                        student.setSchoolCode((String)ds.child("schoolCode").getValue());
+                                        student.setStudentId((String)ds.child("studentId").getValue());
+                                        students.add(student);
+                                    }
+                                }
+                            }
+                            Prefs.putString("studentIds", new Gson().toJson(studentIds));
+                            Prefs.putString("students", new Gson().toJson(students));
+                            Intent intent = new Intent(EditCourses.this, Menu.class);
+                            startActivity(intent);
+                        }
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+                        }
+                    });
                 }
             });
 

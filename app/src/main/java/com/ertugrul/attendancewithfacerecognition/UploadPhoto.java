@@ -25,7 +25,6 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import com.ertugrul.attendancewithfacerecognition.DB.AppDatabase;
 import com.ertugrul.attendancewithfacerecognition.Utilities.ImagePicker;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
@@ -98,8 +97,6 @@ public class UploadPhoto extends AppCompatActivity {
                     //studentName = ((EditText)findViewById(R.id.studentName)).getText().toString();
                     //regNo = ((EditText)findViewById(R.id.regNo)).getText().toString();
 
-                    AppDatabase database = AppDatabase.getAppDatabase(getApplicationContext());
-
                     if(!imageTaken){
                         Toast.makeText(UploadPhoto.this, "Select an image for the student", Toast.LENGTH_SHORT).show();
                     }
@@ -171,7 +168,7 @@ public class UploadPhoto extends AppCompatActivity {
     }
     @Override
     public void onBackPressed() {
-        moveTaskToBack(true);
+        startActivity(new Intent(UploadPhoto.this, ShowCourses.class));
     }
 
 
