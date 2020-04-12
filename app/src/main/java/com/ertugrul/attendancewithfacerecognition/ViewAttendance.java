@@ -35,6 +35,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -198,14 +199,16 @@ public class ViewAttendance extends Fragment {
         DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
         DatabaseReference courseRef = dbRef.child("courses");
         courseRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            List<String> studentIds;
+            List<String> studentIds = new ArrayList<>();
 
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot ds : dataSnapshot.getChildren()) {
                     if (ds.child("courseId").getValue().equals(courseId)) {
                         HashMap<String, String> hashMap = (HashMap<String, String>) ds.child("studentIds").getValue();
-                        studentIds = new ArrayList<>(hashMap.values());
+                        for (Map.Entry me : hashMap.entrySet()) {
+                            studentIds.add((String) me.getKey());
+                        }
                     }
                 }
                 Prefs.putString("studentIds", new Gson().toJson(studentIds));
@@ -294,37 +297,6 @@ public class ViewAttendance extends Fragment {
         }
 
 
-        class getStudentIds extends AsyncTask<String, Void, List<String>> {
 
-            String courseId;
-
-            @Override
-            protected List<String> doInBackground(String... strings) {
-
-                final String courseId = strings[0];
-                studentIds = new ArrayList<>();
-                DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
-                DatabaseReference courseRef = dbRef.child("courses");
-                courseRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        for (DataSnapshot ds : dataSnapshot.getChildren()) {
-                            if (ds.child("courseId").getValue().equals(courseId)) {
-                                HashMap<String, String> hashMap = (HashMap<String, String>) ds.child("studentIds").getValue();
-                                studentIds = new ArrayList<>(hashMap.values());
-
-                            }
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                    }
-                });
-
-
-                return studentIds;
-            }
-        }
     }
 }

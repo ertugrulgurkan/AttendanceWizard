@@ -42,6 +42,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 public class SignUp extends AppCompatActivity {
 
@@ -225,13 +226,13 @@ public class SignUp extends AppCompatActivity {
                             int radioId = radioGroup.getCheckedRadioButtonId();
                             radioButton = findViewById(radioId);
                             final DatabaseReference mDatabase = d.getReference();
+                            UUID personId = UUID.randomUUID();
 
                             if (radioButton.getText().equals("Teacher")){
                                 teacher = new TeacherLogin(user.getUid(),schoolCodeText,emailText,fullNameText,null, titleText);
                                 userLogin = new UserLogin("teacher", user.getUid(),schoolCodeText,courseIds);
                                 school = new School(schoolCodeText);
                                 DatabaseReference schoolRef = dbRef.child("schools");
-
                                 schoolRef.addListenerForSingleValueEvent(new ValueEventListener() {
                                     @Override
                                     public void onDataChange(DataSnapshot dataSnapshot) {

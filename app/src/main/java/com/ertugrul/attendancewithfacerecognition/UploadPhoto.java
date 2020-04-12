@@ -238,7 +238,6 @@ public class UploadPhoto extends AppCompatActivity {
                         params[0], //personGroupID
                         params[1], //name
                         params[2]); //userData or regNo
-
                 return createPersonResult.personId.toString();
 
 
@@ -261,7 +260,7 @@ public class UploadPhoto extends AppCompatActivity {
                 Map<String, Object> childUpdates = new HashMap<>();
                 childUpdates.put("/users/" + userId + "/courseIds/"+ selectedCourseId, selectedCourseId);
                 childUpdates.put("/students/" + userId + "/courseIds/"+ selectedCourseId, selectedCourseId);
-                childUpdates.put("/courses/" + selectedCourseId + "/studentIds/"+ userId, userId);
+                childUpdates.put("/courses/" + selectedCourseId + "/studentIds/"+ userId, personId);
                 dbRef.updateChildren(childUpdates);
                 new AddFaceTask().execute(personId);
             }
@@ -277,7 +276,6 @@ public class UploadPhoto extends AppCompatActivity {
             try{
                 Log.v("", "Adding face...");
                 UUID personId = UUID.fromString(params[0]);
-
                 ByteArrayOutputStream stream = new ByteArrayOutputStream();
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
                 InputStream imageInputStream = new ByteArrayInputStream(stream.toByteArray());

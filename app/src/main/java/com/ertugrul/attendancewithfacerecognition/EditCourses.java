@@ -40,6 +40,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -171,7 +172,9 @@ public class EditCourses extends AppCompatActivity {
                             for (DataSnapshot ds : dataSnapshot.child("courses").getChildren()) {
                                 if (ds.child("courseId").getValue().equals(course.courseId)){
                                     HashMap<String,String> hashMap = (HashMap<String, String>) ds.child("studentIds").getValue();
-                                    studentIds = new ArrayList<>(hashMap.values());
+                                    for (Map.Entry me : hashMap.entrySet()) {
+                                        studentIds.add((String) me.getKey());
+                                    }
                                 }
                             }
                             for (DataSnapshot ds : dataSnapshot.child("students").getChildren()) {

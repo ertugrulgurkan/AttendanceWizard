@@ -8,15 +8,16 @@ public class UserLogin {
     private String schoolCode;
     private List<String> courseIds;
 
-    public UserLogin() {
-    }
-
-    public UserLogin(String userType, String userId,String schoolCode,List<String> courseIds) {
+    public UserLogin(String userType, String userId, String schoolCode, List<String> courseIds) {
         this.userType = userType;
         this.userId = userId;
         this.schoolCode = schoolCode;
         this.courseIds = courseIds;
     }
+
+    public UserLogin() {
+    }
+
 
     public String getUserType() {
         return userType;
