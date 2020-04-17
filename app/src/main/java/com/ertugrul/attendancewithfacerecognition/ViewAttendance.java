@@ -2,8 +2,10 @@ package com.ertugrul.attendancewithfacerecognition;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -21,6 +23,7 @@ import androidx.core.content.ContextCompat;
 import androidx.legacy.app.FragmentCompat;
 
 import com.ertugrul.attendancewithfacerecognition.DB.StudentLogin;
+import com.ertugrul.attendancewithfacerecognition.Utilities.StudentAttendanceEntity;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -44,7 +47,9 @@ public class ViewAttendance extends Fragment {
     ListView viewAttendanceList;
     StudentListAdapter studentListAdapter;
     List<StudentLogin> allStudents;
+    List<StudentAttendanceEntity> studentAttendance;
     List<String> studentIds;
+
 
     @Nullable
     @Override
@@ -62,52 +67,8 @@ public class ViewAttendance extends Fragment {
         String courseId = Prefs.getString("courseId", "");
         getStudentIds(courseId);
         allStudents = new ArrayList<>(Arrays.asList(((new Gson()).fromJson(Prefs.getString("students", ""), StudentLogin[].class))));
-        //while (studentIds.get(0).equals("No Result")){
-        //    if (!Prefs.getString("studentIds","").equals("")){
-        //        studentIds = new ArrayList<>(Arrays.asList(((new Gson()).fromJson(Prefs.getString("studentIds",""), String[].class))));
-        //    }
-        //}
-        //studentIds = new ArrayList<>(Arrays.asList(((new Gson()).fromJson(Prefs.getString("studentIds",""), String[].class))));
-        //getStudentIds(Prefs.getString("courseId", ""), new OnGetDataListener() {
-        //    @Override
-        //    public void onSuccess(Object object) {
-        //        studentIds = (List<String>) object;
-        //    }
-//
-        //    @Override
-        //    public void onStart() {
-        //        Log.d("ONSTART", "Started");
-        //    }
-//
-        //    @Override
-        //    public void onFailure() {
-        //        Log.d("onFailure", "Failed");
-        //    }
-        //});
-        //studentIds = courseIds[0];
-            /*getStudentIds(Prefs.getString("courseId", ""), new OnGetDataListener() {
-            @Override
-            public void onSuccess(Object object) {
-                studentIds = (List<String>)object;
-            }
-            @Override
-            public void onStart() {
-                //when starting
-                Log.d("ONSTART", "Started");
-            }
+        studentAttendance = new ArrayList<>(Arrays.asList(((new Gson()).fromJson(Prefs.getString("studentAttendance", ""), StudentAttendanceEntity[].class))));
 
-            @Override
-            public void onFailure() {
-                Log.d("onFailure", "Failed");
-            }
-        });*/
-        //try {
-        //    studentIds = new getStudentIds().execute(Prefs.getString("courseId", "")).get();
-        //} catch (Exception e) {
-        //    e.printStackTrace();
-        //}
-        //AppDatabase db = AppDatabase.getAppDatabase(getActivity());
-        //List<Student> allStudents = db.studentDao().getAllByCourseId(Prefs.getString("courseId", ""));
 
 
         if (allStudents.isEmpty()) {
@@ -259,6 +220,33 @@ public class ViewAttendance extends Fragment {
             studentName.setText(student.getFullName());
             studentRegNo.setText(student.getStudentId());
 
+
+            CircleImageView deleteStudentButton = convertView.findViewById(R.id.deleteStudentFromCourseButton);
+            deleteStudentButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+
+                    DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            switch (which){
+                                case DialogInterface.BUTTON_POSITIVE:
+                                    //new DeletePersonGroupTask().execute(course.courseId);
+                                    break;
+
+                                case DialogInterface.BUTTON_NEGATIVE:
+                                    dialog.dismiss();
+                                    break;
+                            }
+                        }
+                    };
+                    AlertDialog.Builder ab = new AlertDialog.Builder(getActivity());
+                    ab.setMessage("Are you sure to remove the student from this course?").setPositiveButton("Yes", dialogClickListener)
+                            .setNegativeButton("No", dialogClickListener).show();
+
+
+                }
+            });
             //AppDatabase db = AppDatabase.getAppDatabase(getActivity());
             //
             //if (db.attendanceDao().getAttendance(student.courseId, student..getStudentId())==null){
@@ -266,31 +254,17 @@ public class ViewAttendance extends Fragment {
             //}
 
 
-            //final int attendanceNumber = db.attendanceDao().getAttendance(student.courseId, student.regNo).attendanceNumber;
-            int maxAttendance = 0;
-            //db.courseDao().getNumberOfClasses(student.courseId);
+            int attendanceNumber = 0;
+            for (StudentAttendanceEntity stu : studentAttendance){
+                if (stu.getStudentNumber().equals(student.getUserId()))
+                    attendanceNumber = stu.getAttendanceNumber();
+            }
 
-            //attendanceText.setText(""+attendanceNumber);
-            //maxAttendanceText.setText("/"+maxAttendance);
+            int maxAttendance = Integer.parseInt(Prefs.getString("selectedCourseMaxAttendance", ""));
 
-            //String[] faceIDs = (new Gson()).fromJson(student.getFaceArrayJson(), String[].class);
-//
-            //if (faceIDs.length != 0) {
-//
-            //    String photoPath = Environment.getExternalStorageDirectory() + "/Faces/" + faceIDs[0] + ".jpg"; //take first faceId image /storage/emulated/0/7a677caf-1ece-47af-a771-857f979cd241.jpg
-//
-            //    if (!(new File(photoPath).exists())){
-            //        studentFaceImage.setImageResource(R.drawable.person_icon);
-            //    }
-            //    else{
-            //        BitmapFactory.Options options = new BitmapFactory.Options();
-            //        options.inSampleSize = 8;
-            //        final Bitmap bitmap = BitmapFactory.decodeFile(photoPath, options);
-            //        studentFaceImage.setImageBitmap(bitmap);
-            //    }
-//
-//
-            //}
+            attendanceText.setText(""+attendanceNumber);
+            maxAttendanceText.setText("/"+maxAttendance);
+
 //
             return convertView;
 

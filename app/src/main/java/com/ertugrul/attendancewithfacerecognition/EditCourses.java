@@ -23,6 +23,7 @@ import androidx.appcompat.widget.Toolbar;
 
 import com.ertugrul.attendancewithfacerecognition.DB.Course;
 import com.ertugrul.attendancewithfacerecognition.DB.StudentLogin;
+import com.ertugrul.attendancewithfacerecognition.Utilities.StudentAttendanceEntity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -163,10 +164,12 @@ public class EditCourses extends AppCompatActivity {
                 @Override
                 public void onClick(View view) {
                     Prefs.putString("courseId", course.courseId);
+                    Prefs.putString("selectedCourseMaxAttendance",course.getNumberOfClasses());
                     DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
                     dbRef.addListenerForSingleValueEvent(new ValueEventListener() {
                         List<String> studentIds = new ArrayList<>();
                         List<StudentLogin> students = new ArrayList<>();
+                        List<StudentAttendanceEntity> studentAttendance = new ArrayList<>();
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             for (DataSnapshot ds : dataSnapshot.child("courses").getChildren()) {
@@ -190,6 +193,18 @@ public class EditCourses extends AppCompatActivity {
                                     }
                                 }
                             }
+                            for (StudentLogin student : students){
+                                Long attendanceNumber = 0l;
+                                for (DataSnapshot ds : dataSnapshot.child("attendance").child(course.courseId).getChildren()) {
+                                    if (ds.getKey().equals(student.getUserId())){
+                                        attendanceNumber = (Long) ds.child("attendanceNumber").getValue();
+                                        break;
+                                    }
+                                }
+                                StudentAttendanceEntity studentAttendanceEntity = new StudentAttendanceEntity(student.getUserId(),attendanceNumber.intValue());
+                                studentAttendance.add(studentAttendanceEntity);
+                            }
+                            Prefs.putString("studentAttendance", new Gson().toJson(studentAttendance));
                             Prefs.putString("studentIds", new Gson().toJson(studentIds));
                             Prefs.putString("students", new Gson().toJson(students));
                             Intent intent = new Intent(EditCourses.this, Menu.class);

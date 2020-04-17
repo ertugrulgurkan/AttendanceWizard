@@ -53,6 +53,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -77,6 +78,8 @@ public class TakeAttendance extends AppCompatActivity {
 
     String selectedCourseId;
 
+    Integer selectedCourseMaxAttendance;
+
     DatabaseReference dbRef;
 
     HashMap<String,Long> attendanceCount;
@@ -99,6 +102,8 @@ public class TakeAttendance extends AppCompatActivity {
         resultText = findViewById(R.id.resultText);
 
         selectedCourseId = Prefs.getString("selectedCourseId", "");
+
+        selectedCourseMaxAttendance = Integer.parseInt(Prefs.getString("selectedCourseMaxAttendance", ""));
 
         dbRef = FirebaseDatabase.getInstance().getReference();
 
@@ -364,12 +369,10 @@ public class TakeAttendance extends AppCompatActivity {
 
             attendanceCount.get(student.getStudentId()).longValue();
 
-            AppDatabase db = AppDatabase.getAppDatabase(getApplicationContext());
             //final int attendanceNumber = db.attendanceDao().getAttendance(selectedCourseId, student.getStudentId()).attendanceNumber;
 
             final int attendanceNumber = (int) attendanceCount.get(student.getStudentId()).longValue();
-            int maxAttendance = 0;
-            //db.courseDao().getNumberOfClasses(student.courseId);
+            int maxAttendance = selectedCourseMaxAttendance;
 
             attendanceText.setText("" + attendanceNumber);
             maxAttendanceText.setText("/" + maxAttendance);
@@ -377,28 +380,16 @@ public class TakeAttendance extends AppCompatActivity {
             decrementAttendanceButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    AppDatabase db = AppDatabase.getAppDatabase(getApplicationContext());
-                    db.attendanceDao().decrementAttendance(selectedCourseId, student.getStudentId());
-
+                    Map<String,Integer> map = new HashMap<>();
+                    map.put(student.getUserId(),attendanceNumber);
+                    new decrementAttendanceToDB().execute(map);
                     attendanceText.setText("" + (attendanceNumber - 1));
                     attendanceText.setTextColor(Color.RED);
                     decrementAttendanceButton.setVisibility(View.INVISIBLE);
                 }
             });
 
-           // String[] faceIDs = (new Gson()).fromJson(student.getFaceArrayJson(), String[].class);
-
-           // if (faceIDs.length != 0) {
-           //     String photoPath = Environment.getExternalStorageDirectory() + "/Faces/" + faceIDs[0] + ".jpg"; //take first faceId image /storage/emulated/0/7a677caf-1ece-47af-a771-857f979cd241.jpg
-           //     if (!(new File(photoPath).exists())) {
-           //         studentFaceImage.setImageResource(R.drawable.person_icon);
-           //     } else {
-           //         BitmapFactory.Options options = new BitmapFactory.Options();
-           //         options.inSampleSize = 8;
-           //         final Bitmap bitmap = BitmapFactory.decodeFile(photoPath, options);
-           //         studentFaceImage.setImageBitmap(bitmap);
-           //     }
-           // }
+            studentFaceImage.setImageResource(R.drawable.person_icon);
 
             return convertView;
 
@@ -436,7 +427,13 @@ public class TakeAttendance extends AppCompatActivity {
                                     student.setFullName((String) ds.child("fullName").getValue());
                                     student.setSchoolCode((String) ds.child("schoolCode").getValue());
                                     student.setStudentId((String) ds.child("studentId").getValue());
-                                    identifiedStudents.add(student);
+                                    boolean isExist = false;
+                                    for (StudentLogin identifiedStudent : identifiedStudents) {
+                                        if (identifiedStudent.getUserId().equals(student.getUserId()))
+                                            isExist = true;
+                                    }
+                                    if (!isExist)
+                                        identifiedStudents.add(student);
                                     break;
                                 }
                             }
@@ -466,13 +463,15 @@ public class TakeAttendance extends AppCompatActivity {
                                 for (DataSnapshot ds : dataSnapshot.child("attendance").child(selectedCourseId).getChildren()) {
                                     if (ds.child("studentId").getValue().equals(identifiedStudent.getStudentId())) {
                                         Long attendanceNumber = (Long) ds.child("attendanceNumber").getValue();
-                                        ds.child("attendanceNumber").getRef().setValue(attendanceNumber+1);
+                                        Map<String, Object> childUpdate = new HashMap<>();
+                                        childUpdate.put("/attendance/" + selectedCourseId+"/"+identifiedStudent.getUserId()+"/attendanceNumber/", attendanceNumber+1);
                                         attendanceCount.put(identifiedStudent.getStudentId(),attendanceNumber+1);
+                                        dbRef.updateChildren(childUpdate);
                                     }
                                 }
                             }
+                            studentIdAttendanceIncremented.add(identifiedStudent.getStudentId());
                         }
-                        studentIdAttendanceIncremented.add(identifiedStudent.getStudentId());
                     }
 
                     studentListAdapter = new StudentListAdapter(TakeAttendance.this, R.layout.list_identified_students_row, identifiedStudents);
@@ -491,6 +490,35 @@ public class TakeAttendance extends AppCompatActivity {
             });
             return null;
 
+        }
+    }
+
+
+    class decrementAttendanceToDB extends  AsyncTask<Map<String,Integer>,Void,Void>{
+
+        @Override
+        protected Void doInBackground(Map<String, Integer>... maps) {
+            Map<String, Integer> map = maps[0];
+            Integer attendanceNumber = 0;
+            String studentId ="";
+            for (Map.Entry me : map.entrySet()) {
+                attendanceNumber = (Integer) me.getValue();
+                studentId = (String) me.getKey();
+            }
+            final Integer attendanceNo = attendanceNumber;
+            final String studentNo = studentId;
+            dbRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    Map<String, Object> childUpdate = new HashMap<>();
+                    childUpdate.put("/attendance/" + selectedCourseId+"/"+studentNo+"/attendanceNumber/", attendanceNo-1);
+                    dbRef.updateChildren(childUpdate);
+                }
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                }
+            });
+            return null;
         }
     }
 }
