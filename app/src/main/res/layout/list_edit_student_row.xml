@@ -28,7 +28,7 @@
         android:layout_height="wrap_content"
         android:layout_alignTop="@+id/studentFaceThumbnail"
         android:layout_toEndOf="@+id/studentFaceThumbnail"
-        android:text="Eisa Adil"
+        android:text="Ertugrul Gurkan"
         android:layout_alignParentStart="true"
 
         android:textColor="#D9000000"

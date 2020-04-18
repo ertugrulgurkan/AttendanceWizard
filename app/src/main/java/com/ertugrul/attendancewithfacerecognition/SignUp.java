@@ -116,6 +116,7 @@ public class SignUp extends AppCompatActivity {
         String userType = Prefs.getString("userType","");
         if (user != null) {
             // User is signed in
+            Prefs.putString("userId",user.getUid());
             if (userType.equals("student"))
                 startActivity(new Intent(SignUp.this, ShowCourses.class));
             else if (userType.equals("teacher"))

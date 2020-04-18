@@ -227,7 +227,7 @@ public class EditCourses extends AppCompatActivity {
                         public void onClick(DialogInterface dialog, int which) {
                             switch (which){
                                 case DialogInterface.BUTTON_POSITIVE:
-                                    //new DeletePersonGroupTask().execute(course.courseId);
+                                    new DeletePersonGroupTask().execute(course.courseId);
                                     break;
 
                                 case DialogInterface.BUTTON_NEGATIVE:
@@ -369,31 +369,55 @@ public class EditCourses extends AppCompatActivity {
         @Override
         protected void onPostExecute(final String deletedCourseId) {
             if(!deletedCourseId.equals("")){
+                final String userId = Prefs.getString("userId", "");
                 Toast.makeText(EditCourses.this, "Course successfully deleted", Toast.LENGTH_LONG).show();
 
-                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                FirebaseDatabase d = FirebaseDatabase.getInstance();
-                final DatabaseReference databaseReference = d.getReference().child("users").child(user.getUid()).child("courseIds");
-
-                databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
+                dbRef.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
-                    public void onDataChange(DataSnapshot ds) {
-                        List<String> courseIds = new ArrayList<>();
-                        for (DataSnapshot courseData: ds.getChildren()){
-                            if (!courseData.getValue().equals(deletedCourseId)){
-                                courseIds.add((String)courseData.getValue());
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+
+                        HashMap<String, String> hashMap = new HashMap<>();
+                        for (DataSnapshot ds : dataSnapshot.child("courses").getChildren()) {
+                            if (ds.child("courseId").getValue().equals(deletedCourseId)) {
+                                hashMap = (HashMap<String, String>) ds.child("studentIds").getValue();
                             }
                         }
-                        databaseReference.setValue(courseIds);
-                    }
+                        dataSnapshot.child("courses").child(deletedCourseId).getRef().removeValue();
 
+                        dataSnapshot.child("attendance").child(deletedCourseId).getRef().removeValue();
+
+                        if (!hashMap.isEmpty()) {
+                            for (Map.Entry me : hashMap.entrySet()) {
+                                for (DataSnapshot ds : dataSnapshot.child("students").getChildren()) {
+                                    if (ds.child("userId").getValue().equals(me.getKey())) {
+                                        HashMap<String, String> map = (HashMap<String, String>) ds.child("courseIds").getValue();
+                                        map.remove(deletedCourseId);
+                                        ds.child("courseIds").getRef().setValue(map);
+                                    }
+                                }
+                            }
+                        }
+
+                            for (DataSnapshot ds : dataSnapshot.child("teachers").getChildren()) {
+                                if (ds.child("userId").getValue().equals(userId)) {
+                                    HashMap<String, String> map = (HashMap<String, String>) ds.child("courseIds").getValue();
+                                    map.remove(deletedCourseId);
+                                    ds.child("courseIds").getRef().setValue(map);
+                                }
+                            }
+                            for (DataSnapshot ds : dataSnapshot.child("users").getChildren()) {
+                                if (ds.child("userId").getValue().equals(userId)) {
+                                    HashMap<String, String> map = (HashMap<String, String>) ds.child("courseIds").getValue();
+                                    map.remove(deletedCourseId);
+                                    ds.child("courseIds").getRef().setValue(map);
+                                }
+                            }
+                    }
                     @Override
                     public void onCancelled(DatabaseError databaseError) {
-
                     }
                 });
-
-
 
                 onStart();
             }

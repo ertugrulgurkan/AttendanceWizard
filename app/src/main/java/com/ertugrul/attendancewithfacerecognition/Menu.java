@@ -55,16 +55,13 @@ public class Menu extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(android.view.Menu menu) {
-        getMenuInflater().inflate(R.menu.home_menu, menu);
+        getMenuInflater().inflate(R.menu.logout_menu, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.action_edit:
-                startActivity(new Intent(Menu.this,EditStudents.class));
-                return true;
             case R.id.action_logout:
                 DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
                     @Override
@@ -72,7 +69,7 @@ public class Menu extends AppCompatActivity {
                         switch (which){
                             case DialogInterface.BUTTON_POSITIVE:
                                 FirebaseAuth.getInstance().signOut();
-                                startActivity(new Intent(getApplicationContext(), MainActivity.class));
+                                startActivity(new Intent(Menu.this, MainActivity.class));
                                 finish();
                                 break;
 
@@ -85,13 +82,9 @@ public class Menu extends AppCompatActivity {
                 AlertDialog.Builder ab = new AlertDialog.Builder(Menu.this);
                 ab.setMessage("Are you sure you want to Logout?").setPositiveButton("Yes", dialogClickListener)
                         .setNegativeButton("No", dialogClickListener).show();
-
                 return true;
             default:
-                // If we got here, the user's action was not recognized.
-                // Invoke the superclass to handle it.
                 return super.onOptionsItemSelected(item);
-
         }
     }
 

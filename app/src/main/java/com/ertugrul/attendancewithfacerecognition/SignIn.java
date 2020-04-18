@@ -83,6 +83,7 @@ public class SignIn extends AppCompatActivity {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         String userType = Prefs.getString("userType","");
         if (user != null) {
+            Prefs.putString("userId",user.getUid());
             // User is signed in
             if (userType.equals("student"))
                 startActivity(new Intent(SignIn.this, ShowCourses.class ));

@@ -6,6 +6,7 @@ import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -231,7 +232,7 @@ public class ViewAttendance extends Fragment {
                         public void onClick(DialogInterface dialog, int which) {
                             switch (which){
                                 case DialogInterface.BUTTON_POSITIVE:
-                                    //new DeletePersonGroupTask().execute(course.courseId);
+                                    new DeleteStudentFromCourse().execute(student.getUserId(),Prefs.getString("courseId", ""));
                                     break;
 
                                 case DialogInterface.BUTTON_NEGATIVE:
@@ -265,7 +266,6 @@ public class ViewAttendance extends Fragment {
             attendanceText.setText(""+attendanceNumber);
             maxAttendanceText.setText("/"+maxAttendance);
 
-//
             return convertView;
 
         }
@@ -273,4 +273,54 @@ public class ViewAttendance extends Fragment {
 
 
     }
+
+    class DeleteStudentFromCourse extends AsyncTask <String,Void,Void>{
+
+        @Override
+        protected Void doInBackground(String... strings) {
+            final String studentUserId = strings[0];
+            final String courseId = strings[1];
+
+            DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
+            dbRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    for (DataSnapshot ds : dataSnapshot.child("courses").getChildren()) {
+                        if (ds.child("courseId").getValue().equals(courseId)){
+                            HashMap<String,String> hashMap = (HashMap<String, String>) ds.child("studentIds").getValue();
+                            hashMap.remove(studentUserId);
+                            ds.child("studentIds").getRef().setValue(hashMap);
+                        }
+                    }
+                    for (DataSnapshot ds : dataSnapshot.child("attendance").child(courseId).getChildren()) {
+                        if (ds.getKey().equals(studentUserId)){
+                            ds.getRef().removeValue();
+                        }
+                    }
+                    for (DataSnapshot ds : dataSnapshot.child("students").getChildren()) {
+                            if (ds.child("userId").getValue().equals(studentUserId)){
+                                HashMap<String,String> hashMap = (HashMap<String, String>) ds.child("courseIds").getValue();
+                                hashMap.remove(courseId);
+                                ds.child("courseIds").getRef().setValue(hashMap);
+                            }
+                    }
+                    for (DataSnapshot ds : dataSnapshot.child("users").getChildren()) {
+                        if (ds.child("userId").getValue().equals(studentUserId)){
+                            HashMap<String,String> hashMap = (HashMap<String, String>) ds.child("courseIds").getValue();
+                            hashMap.remove(courseId);
+                            ds.child("courseIds").getRef().setValue(hashMap);
+                        }
+                    }
+                    startActivity(new Intent(getActivity(), EditCourses.class));
+                    Toast.makeText(getActivity(), "Student was successfully deleted from this course :)", Toast.LENGTH_LONG).show();
+
+                }
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                }
+            });
+            return null;
+        }
+    }
+
 }

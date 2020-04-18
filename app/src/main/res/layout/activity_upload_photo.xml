@@ -48,6 +48,7 @@
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/input_layout_name"
             android:layout_width="match_parent"
+            android:visibility="gone"
             android:layout_height="wrap_content">
             <EditText
                 android:layout_width="match_parent"
@@ -60,6 +61,7 @@
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/input_layout_regNo"
             android:layout_width="match_parent"
+            android:visibility="gone"
             android:layout_height="wrap_content">
             <EditText
                 android:layout_width="match_parent"
