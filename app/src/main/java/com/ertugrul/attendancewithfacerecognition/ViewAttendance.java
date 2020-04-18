@@ -166,8 +166,10 @@ public class ViewAttendance extends Fragment {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot ds : dataSnapshot.getChildren()) {
-                    if (ds.child("courseId").getValue().equals(courseId)) {
-                        HashMap<String, String> hashMap = (HashMap<String, String>) ds.child("studentIds").getValue();
+                    HashMap<String,String> hashMap = new HashMap<>();
+                    if (ds.child("courseId").getValue().equals(courseId)){
+                        if (ds.child("studentIds").getValue() != null)
+                            hashMap =(HashMap<String, String>) ds.child("studentIds").getValue();
                         for (Map.Entry me : hashMap.entrySet()) {
                             studentIds.add((String) me.getKey());
                         }
@@ -248,11 +250,7 @@ public class ViewAttendance extends Fragment {
 
                 }
             });
-            //AppDatabase db = AppDatabase.getAppDatabase(getActivity());
-            //
-            //if (db.attendanceDao().getAttendance(student.courseId, student..getStudentId())==null){
-            //    db.attendanceDao().insertAll(new Attendance(student.regNo, student.courseId, 0));
-            //}
+
 
 
             int attendanceNumber = 0;

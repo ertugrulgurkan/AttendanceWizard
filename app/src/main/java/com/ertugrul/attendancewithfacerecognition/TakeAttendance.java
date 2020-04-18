@@ -4,11 +4,9 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.StrictMode;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -23,20 +21,14 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import com.ertugrul.attendancewithfacerecognition.DB.AppDatabase;
-import com.ertugrul.attendancewithfacerecognition.DB.Attendance;
 import com.ertugrul.attendancewithfacerecognition.DB.AttendanceLogin;
-import com.ertugrul.attendancewithfacerecognition.DB.Student;
 import com.ertugrul.attendancewithfacerecognition.DB.StudentLogin;
 import com.ertugrul.attendancewithfacerecognition.Utilities.ImagePicker;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.MutableData;
-import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
-import com.google.gson.Gson;
 import com.microsoft.projectoxford.face.FaceServiceClient;
 import com.microsoft.projectoxford.face.FaceServiceRestClient;
 import com.microsoft.projectoxford.face.contract.Face;
@@ -46,14 +38,12 @@ import com.pixplicity.easyprefs.library.Prefs;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -101,7 +91,7 @@ public class TakeAttendance extends AppCompatActivity {
 
         resultText = findViewById(R.id.resultText);
 
-        selectedCourseId = Prefs.getString("selectedCourseId", "");
+        selectedCourseId = Prefs.getString("courseId", "");
 
         selectedCourseMaxAttendance = Integer.parseInt(Prefs.getString("selectedCourseMaxAttendance", ""));
 
@@ -369,7 +359,6 @@ public class TakeAttendance extends AppCompatActivity {
 
             attendanceCount.get(student.getStudentId()).longValue();
 
-            //final int attendanceNumber = db.attendanceDao().getAttendance(selectedCourseId, student.getStudentId()).attendanceNumber;
 
             final int attendanceNumber = (int) attendanceCount.get(student.getStudentId()).longValue();
             int maxAttendance = selectedCourseMaxAttendance;

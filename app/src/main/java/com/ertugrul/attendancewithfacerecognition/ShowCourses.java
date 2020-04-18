@@ -68,11 +68,6 @@ public class ShowCourses extends AppCompatActivity {
         courseIds = new ArrayList<>(Arrays.asList(((new Gson()).fromJson(Prefs.getString("userCourseIds", ""), String[].class))));
         courseListView = findViewById(R.id.courseList);
 
-
-        //Log.v("EditCourses", Prefs.getString("UserID", "A"));
-        //Log.v("EditCourses", Prefs.getString("UserEmail", "A"));
-        //Log.v("EditCourses", Prefs.getString("UserDisplayName", "A"));
-        //Log.v("EditCourses", Prefs.getString("userCourseIds", "A"));
     }
 
 
@@ -176,7 +171,7 @@ public class ShowCourses extends AppCompatActivity {
 
                             Boolean isEnrolled = false;
                             for (DataSnapshot ds : dataSnapshot.getChildren()) {
-                                if (ds.getValue().equals(userId))
+                                if (ds.getKey().equals(userId))
                                     isEnrolled = true;
                             }
                             progressDialog.dismiss();
@@ -194,31 +189,6 @@ public class ShowCourses extends AppCompatActivity {
                         }
                     });
 
-
-
-
-                    /////
-
-
-
-
-
-                    //Boolean isEnrolled;
-                    //try {
-                    //    isEnrolled = new checkEnrolled().execute().get();
-                    //    if (isEnrolled){
-                    //        /// buraya bir async task konup boolean değerle enroll olunup olunmadığı kontol edilebilir. eğer olunmussa toast mesajı ile you are already enrolled this course yazılabilir.
-                    //        Intent intent = new Intent(ShowCourses.this, UploadPhoto.class);
-                    //        startActivity(intent);
-                    //    }
-                    //    else{
-                    //        Toast.makeText(ShowCourses.this, "Already enrolled this course.", Toast.LENGTH_LONG).show();
-                    //    }
-                    //} catch (ExecutionException e) {
-                    //    e.printStackTrace();
-                    //} catch (InterruptedException e) {
-                    //    e.printStackTrace();
-                    //}
 
 
                 }
@@ -404,67 +374,6 @@ public class ShowCourses extends AppCompatActivity {
     }
 
 }
-    /*class DeletePersonGroupTask extends AsyncTask<String, Void, String> {
 
-        @Override
-        protected String doInBackground(String... params) {
-            Log.v("","Request: Delete person group " + params[0]);
-
-            // Get an instance of face service client.
-            FaceServiceClient faceServiceClient = new FaceServiceRestClient(getString(R.string.subscription_key));
-            try{
-                Log.v("",("Deleting person group..."));
-                faceServiceClient.deleteLargePersonGroup(params[0]);
-                return params[0];
-            } catch (Exception e) {
-                e.printStackTrace();
-                return "";
-            }
-        }
-
-        @Override
-        protected void onPreExecute() {
-
-        }
-
-        @Override
-        protected void onPostExecute(final String deletedCourseId) {
-            if(!deletedCourseId.equals("")){
-                Toast.makeText(ShowCourses.this, "Course successfully deleted", Toast.LENGTH_LONG).show();
-
-                AppDatabase db = AppDatabase.getAppDatabase(getApplicationContext());
-
-                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                FirebaseDatabase d = FirebaseDatabase.getInstance();
-                final DatabaseReference databaseReference = d.getReference().child("users").child(user.getUid()).child("courseIds");
-
-                databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot ds) {
-                        List<String> courseIds = new ArrayList<>();
-                        for (DataSnapshot courseData: ds.getChildren()){
-                            if (!courseData.getValue().equals(deletedCourseId)){
-                                courseIds.add((String)courseData.getValue());
-                            }
-                        }
-                        databaseReference.setValue(courseIds);
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
-
-
-
-                onStart();
-            }
-            else{
-                Toast.makeText(ShowCourses.this, "Course could not be deleted", Toast.LENGTH_LONG).show();
-            }
-        }
-    }
-*/
 
 

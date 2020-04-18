@@ -173,11 +173,13 @@ public class EditCourses extends AppCompatActivity {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             for (DataSnapshot ds : dataSnapshot.child("courses").getChildren()) {
+                                HashMap<String,String> hashMap = new HashMap<>();
                                 if (ds.child("courseId").getValue().equals(course.courseId)){
-                                    HashMap<String,String> hashMap = (HashMap<String, String>) ds.child("studentIds").getValue();
-                                    for (Map.Entry me : hashMap.entrySet()) {
-                                        studentIds.add((String) me.getKey());
-                                    }
+                                    if (ds.child("studentIds").getValue() != null)
+                                        hashMap =(HashMap<String, String>) ds.child("studentIds").getValue();
+                                        for (Map.Entry me : hashMap.entrySet()) {
+                                            studentIds.add((String) me.getKey());
+                                        }
                                 }
                             }
                             for (DataSnapshot ds : dataSnapshot.child("students").getChildren()) {
