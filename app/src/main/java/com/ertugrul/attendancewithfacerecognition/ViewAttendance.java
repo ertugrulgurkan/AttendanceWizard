@@ -49,7 +49,6 @@ public class ViewAttendance extends Fragment {
     StudentListAdapter studentListAdapter;
     List<StudentLogin> allStudents;
     List<StudentAttendanceEntity> studentAttendance;
-    List<String> studentIds;
 
 
     @Nullable
@@ -127,36 +126,6 @@ public class ViewAttendance extends Fragment {
         }
     }
 
-    /*public synchronized List<String>[] getStudentIds(final String courseId){
-        final CountDownLatch done = new CountDownLatch(1);
-        final List<String>[] studentIds = new List[0];
-        DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
-        DatabaseReference courseRef = dbRef.child("courses");
-        courseRef.addListenerForSingleValueEvent(new ValueEventListener() {
-
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                for (DataSnapshot ds : dataSnapshot.getChildren()) {
-                    if (ds.child("courseId").getValue().equals(courseId)){
-                        HashMap<String,String> hashMap = (HashMap<String, String>) ds.child("studentIds").getValue();
-                        studentIds[0] = new ArrayList<>(hashMap.values());
-                    }
-                }
-                done.countDown();
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                done.countDown();
-            }
-        });
-        try {
-            done.await();
-        } catch(InterruptedException e) {
-            e.printStackTrace();
-        }
-        return  studentIds;
-    }*/
     public void getStudentIds(final String courseId) {
         DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
         DatabaseReference courseRef = dbRef.child("courses");

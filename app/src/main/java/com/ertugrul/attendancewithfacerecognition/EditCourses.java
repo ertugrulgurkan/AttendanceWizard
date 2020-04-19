@@ -164,6 +164,7 @@ public class EditCourses extends AppCompatActivity {
                 @Override
                 public void onClick(View view) {
                     Prefs.putString("courseId", course.courseId);
+                    Prefs.putString("courseName",course.getCourseName());
                     Prefs.putString("selectedCourseMaxAttendance",course.getNumberOfClasses());
                     DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
                     dbRef.addListenerForSingleValueEvent(new ValueEventListener() {

@@ -61,21 +61,37 @@
             tools:layout="@layout/content_view_attendance" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/takeAttendance"
+        android:id="@+id/takeAttendance"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|bottom"
+        android:layout_marginBottom="0dp"
+        android:layout_marginEnd="0dp"
+        android:layout_marginLeft="0dp"
+        android:layout_marginRight="0dp"
+        android:layout_marginStart="0dp"
+        android:layout_marginTop="0dp"
+        android:src="@drawable/ic_add_a_photo_white_24dp"
+        app:layout_anchor="@id/takeAttendance"
+        app:layout_anchorGravity="top"
+        android:layout_margin="16dp"
+        android:tooltipText="Take Attendance"/>
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/export"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="end|bottom"
+            android:layout_gravity="start|bottom"
             android:layout_marginBottom="0dp"
             android:layout_marginEnd="0dp"
             android:layout_marginLeft="0dp"
             android:layout_marginRight="0dp"
             android:layout_marginStart="0dp"
             android:layout_marginTop="0dp"
-            android:src="@drawable/ic_add_a_photo_white_24dp"
-            app:layout_anchor="@id/takeAttendance"
+            android:src="@drawable/ic_import_export_black_24dp"
+            app:layout_anchor="@id/export"
             app:layout_anchorGravity="top"
             android:layout_margin="16dp"
-            android:tooltipText="Take Attendance"/>
+            android:tooltipText="Take Export"/>
 
     </FrameLayout>
 
