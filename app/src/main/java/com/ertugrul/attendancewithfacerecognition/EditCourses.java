@@ -390,7 +390,7 @@ public class EditCourses extends AppCompatActivity {
 
                         dataSnapshot.child("attendance").child(deletedCourseId).getRef().removeValue();
 
-                        if (!hashMap.isEmpty()) {
+                        if (hashMap != null) {
                             for (Map.Entry me : hashMap.entrySet()) {
                                 for (DataSnapshot ds : dataSnapshot.child("students").getChildren()) {
                                     if (ds.child("userId").getValue().equals(me.getKey())) {

@@ -144,7 +144,7 @@ public class Menu extends AppCompatActivity {
             File f = new File(filePath);
             CSVWriter writer;
             if (f.exists() && !f.isDirectory()) {
-                FileWriter mFileWriter = new FileWriter(filePath, false);
+                FileWriter mFileWriter = new FileWriter(filePath, true);
                 writer = new CSVWriter(mFileWriter,
                         CSVWriter.DEFAULT_SEPARATOR,
                         CSVWriter.NO_QUOTE_CHARACTER,
