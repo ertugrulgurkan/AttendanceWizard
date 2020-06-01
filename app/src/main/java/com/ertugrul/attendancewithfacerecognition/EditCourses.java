@@ -75,10 +75,7 @@ public class EditCourses extends AppCompatActivity {
                 startActivity(new Intent(EditCourses.this, AddCourse.class));
             }
         });
-        //Log.v("EditCourses", Prefs.getString("UserID", "A"));
-        //Log.v("EditCourses", Prefs.getString("UserEmail", "A"));
-        //Log.v("EditCourses", Prefs.getString("UserDisplayName", "A"));
-        //Log.v("EditCourses", Prefs.getString("userCourseIds", "A"));
+
     }
 
 

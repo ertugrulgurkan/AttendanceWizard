@@ -94,19 +94,7 @@ public class AddCourse extends AppCompatActivity {
         startActivity(new Intent(AddCourse.this, EditCourses.class));
     }
 
-    /*private class CourseData{
-        String courseName;
-        String year;
-        String numberOfClasses;
-        String courseCode;
 
-        public CourseData(String courseName, String year, String numberOfClasses, String courseCode) {
-            this.courseName = courseName;
-            this.year = year;
-            this.numberOfClasses = numberOfClasses;
-            this.courseCode = courseCode;
-        }
-    }*/
 
     class AddPersonGroupTask extends AsyncTask<String, Void, String> {
 
@@ -120,7 +108,7 @@ public class AddCourse extends AppCompatActivity {
                 Log.v("",("Syncing with server to add person group..."));
 
                 // Start creating person group in server.
-                faceServiceClient.createLargePersonGroup(  // burası çalışıyor ama şimdilik eklemek istemediğim için kapatıyorum
+                faceServiceClient.createLargePersonGroup(
                         params[0],
                         params[1],
                         params[2]);
@@ -146,7 +134,6 @@ public class AddCourse extends AppCompatActivity {
             findViewById(R.id.addCourseProgress).setVisibility(View.INVISIBLE);
             if (result != null) {
                 Log.v("", "Response: Success. Person group " + result + " created");
-                //Toast.makeText(getApplicationContext(), "Course for "+result.toUpperCase()+" successfully created", Toast.LENGTH_LONG).show();
 
                 Toast.makeText(getApplicationContext(), "Course successfully created", Toast.LENGTH_LONG).show();
 
@@ -161,42 +148,7 @@ public class AddCourse extends AppCompatActivity {
                 List<String> userCourseIds = new ArrayList<>(Arrays.asList(((new Gson()).fromJson(Prefs.getString("userCourseIds", ""), String[].class))));
                 userCourseIds.add(courseIdFromDB);
                 Prefs.putString("userCourseIds", new Gson().toJson(userCourseIds));
-                /*mDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        User currentUser = new User();
-                        for (DataSnapshot ds: dataSnapshot.getChildren()){
-                            switch(ds.getKey()){
-                                case "email":
-                                    currentUser.setEmail((String)ds.getValue());
-                                    break;
-                                case "fullName":
-                                    currentUser.setFullName((String)ds.getValue());
-                                    break;
-                                case "courseIds":
-                                    currentUser.setCourseIds((ArrayList<String>)ds.getValue());
-                                    break;
-                            }
-                        }
 
-                        List<String> courseIds = new ArrayList<>();
-
-                        if(currentUser.getCourseIds() != null)
-                            courseIds.addAll(currentUser.getCourseIds());
-
-                        courseIds.add(newCourseId);
-
-                        currentUser.setCourseIds(courseIds);
-                        databaseReference.setValue(currentUser);
-
-                        Prefs.putString("userCourseIds", new Gson().toJson(currentUser.getCourseIds()));
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });*/
 
                 startActivity(new Intent(AddCourse.this, EditCourses.class));
                 finish();

@@ -84,7 +84,6 @@ public class TakeAttendance extends AppCompatActivity {
             StrictMode.setThreadPolicy(policy);
         }
 
-        //ab.setSubtitle("Click on the picture to keep adding students");
         setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         getSupportActionBar().setElevation(100);
