@@ -94,25 +94,11 @@ public class UploadPhoto extends AppCompatActivity {
             public void onClick(View view) {
 
                 if (alreadyHasPermission()){
-                    //studentName = ((EditText)findViewById(R.id.studentName)).getText().toString();
-                    //regNo = ((EditText)findViewById(R.id.regNo)).getText().toString();
 
                     if(!imageTaken){
                         Toast.makeText(UploadPhoto.this, "Select an image for the student", Toast.LENGTH_SHORT).show();
                     }
-                    /*else if (studentName.equals("")){
-                        ((EditText)findViewById(R.id.studentName)).setError("Please enter a Student Name");
-                        (findViewById(R.id.studentName)).requestFocus();
-                    }
-                    else if (regNo.equals("")){
-                        ((EditText)findViewById(R.id.regNo)).setError("Please enter a Registration Number");
-                        (findViewById(R.id.regNo)).requestFocus();
-                    }
-                    else if (database.studentDao().checkRegNoUnique(regNo)==1){
-                        ((EditText)findViewById(R.id.regNo)).setError("Registration number should be unique");
-                        (findViewById(R.id.regNo)).requestFocus();
-                    }
-                    */
+
                     else{
                         new AddPersonTask().execute(Prefs.getString("selectedCourseId", ""), Prefs.getString("userName", ""), Prefs.getString("userId", ""));
                     }
@@ -160,8 +146,6 @@ public class UploadPhoto extends AppCompatActivity {
                         .setNegativeButton("No", dialogClickListener).show();
                 return true;
             default:
-                // If we got here, the user's action was not recognized.
-                // Invoke the superclass to handle it.
                 return super.onOptionsItemSelected(item);
 
         }
